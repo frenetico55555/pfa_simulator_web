@@ -1,0 +1,22 @@
+# Node / tooling common
+node_modules/
+.DS_Store
+.env
+.env.local
+*.log
+# Python
+__pycache__/
+*.pyc
+
+# Build artifacts
+/dist
+/build
+
+# Editor
+.vscode/
+.idea/
+
+# Backups
+*~
+# Prompts backups
+prompts_backup_*.json

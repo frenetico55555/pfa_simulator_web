@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulador de Primeros Auxilios Psicológicos</title>
+    <link rel="stylesheet" href="codigo-interno/styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Ventana de Configuración de Simulación -->
+    <div id="simulationConfigWindow" class="modal active">
+        <div class="modal-content">
+            <h2>Configuración de Simulación de PFA</h2>
+            
+            <div class="form-group">
+                <label for="providerName">Tu nombre (proveedor de PFA):</label>
+                <input type="text" id="providerName" placeholder="Ingresa tu nombre completo">
+            </div>
+
+            <div class="form-group">
+                <label for="difficultySlider">Nivel de dificultad (0–100): <span id="difficultyValue">50%</span></label>
+                <input type="range" id="difficultySlider" min="0" max="100" value="50" step="1">
+            </div>
+
+            <div class="form-group">
+                <label for="traumaType">Tipo de trauma:</label>
+                <select id="traumaType">
+                    <option value="Agresión Sexual">Agresión Sexual</option>
+                    <option value="Ataque Físico">Ataque Físico</option>
+                    <option value="Conflicto Armado">Conflicto Armado</option>
+                    <option value="Terrorismo">Terrorismo</option>
+                    <option value="Desastre Natural">Desastre Natural</option>
+                    <option value="Accidente de Tránsito">Accidente de Tránsito</option>
+                    <option value="Accidente Doméstico">Accidente Doméstico</option>
+                    <option value="Condición médica repentina">Condición médica repentina</option>
+                    <option value="Noticias traumáticas repentinas">Noticias traumáticas repentinas</option>
+                    <option value="Incendio">Incendio</option>
+                    <option value="Aleatorio">Aleatorio</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="traumaSetting">Escenario del trauma:</label>
+                <select id="traumaSetting">
+                    <option value="Casa">Casa</option>
+                    <option value="Escuela">Escuela</option>
+                    <option value="Zona de combate">Zona de combate</option>
+                    <option value="Lugar de trabajo">Lugar de trabajo</option>
+                    <option value="Calle">Calle</option>
+                    <option value="Naturaleza">Naturaleza</option>
+                    <option value="Lugar público">Lugar público</option>
+                    <option value="Aleatorio">Aleatorio</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="age">Edad del sobreviviente de trauma:</label>
+                <select id="age">
+                    <option value="Joven Adulto">Joven Adulto</option>
+                    <option value="Niño">Niño</option>
+                    <option value="Adolescente">Adolescente</option>
+                    <option value="Adulto">Adulto</option>
+                    <option value="Anciano">Anciano</option>
+                    <option value="Aleatorio">Aleatorio</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="gender">Género del sobreviviente de trauma:</label>
+                <select id="gender">
+                    <option value="Femenino">Femenino</option>
+                    <option value="Masculino">Masculino</option>
+                    <option value="No especificado">No especificado</option>
+                    <option value="Aleatorio">Aleatorio</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>
+                    <input type="checkbox" id="randomSimulation">
+                    Habilitar simulación aleatoria
+                </label>
+            </div>
+
+            <div class="form-group">
+                <label for="challenges">Desafíos de PFA:</label>
+                <select id="challenges">
+                    <option value="Pérdida de contacto con la realidad">Pérdida de contacto con la realidad</option>
+                    <option value="Agresión auto/hetero-dirigida">Agresión auto/hetero-dirigida</option>
+                    <option value="Ausencia de respuesta a estímulos">Ausencia de respuesta a estímulos</option>
+                    <option value="Tratamiento de salud mental actual o previo">Tratamiento de salud mental actual o previo</option>
+                    <option value="Síntomas invalidantes que no ceden">Síntomas invalidantes que no ceden</option>
+                    <option value="Aleatorio">Aleatorio</option>
+                </select>
+            </div>
+
+            <button id="advancedOptionsBtn" class="btn btn-secondary">Opciones Avanzadas</button>
+            <button id="startSimulationBtn" class="btn btn-primary">Iniciar Simulación</button>
+        </div>
+    </div>
+
+    <!-- Ventana de Opciones Avanzadas -->
+    <div id="advancedOptionsDialog" class="modal">
+        <div class="modal-content">
+            <h2>Opciones de Configuración Avanzadas</h2>
+            
+            <div class="form-group">
+                <label for="education">Nivel educativo:</label>
+                <select id="education">
+                    <option value="Básico">Básico</option>
+                    <option value="Secundaria">Secundaria</option>
+                    <option value="Técnico">Técnico</option>
+                    <option value="Profesional">Profesional</option>
+                    <option value="Postgrado">Postgrado</option>
+                    <option value="Aleatorio">Aleatorio</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="civilStatus">Estado civil:</label>
+                <select id="civilStatus">
+                    <option value="Soltero">Soltero</option>
+                    <option value="En una relación">En una relación</option>
+                    <option value="Casado">Casado</option>
+                    <option value="Divorciado">Divorciado</option>
+                    <option value="Viudo">Viudo</option>
+                    <option value="Aleatorio">Aleatorio</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="network">Red social:</label>
+                <select id="network">
+                    <option value="Sin familia ni red social">Sin familia ni red social</option>
+                    <option value="Red social/familiar restringida">Red social/familiar restringida</option>
+                    <option value="Red social y lazos fuertes">Red social y lazos fuertes</option>
+                    <option value="Red social y lazos aleatorios">Red social y lazos aleatorios</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Vive con:</label>
+                <div class="checkbox-group" id="livesWithOptions">
+                    <label><input type="checkbox" value="Solo"> Solo</label>
+                    <label><input type="checkbox" value="Pareja"> Pareja</label>
+                    <label><input type="checkbox" value="Hermanos"> Hermanos</label>
+                    <label><input type="checkbox" value="Padres"> Padres</label>
+                    <label><input type="checkbox" value="Amigos"> Amigos</label>
+                    <label><input type="checkbox" value="Aleatorio"> Combinación aleatoria</label>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Hobbies:</label>
+                <div class="checkbox-group" id="hobbiesOptions">
+                    <label><input type="checkbox" value="Lectura"> Lectura</label>
+                    <label><input type="checkbox" value="Deportes"> Deportes</label>
+                    <label><input type="checkbox" value="Artes"> Artes</label>
+                    <label><input type="checkbox" value="Música"> Música</label>
+                    <label><input type="checkbox" value="Navegación"> Navegación</label>
+                    <label><input type="checkbox" value="Aleatorio"> Combinación aleatoria</label>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Rasgos de Personalidad:</label>
+                <div class="personality-sliders">
+                    <div class="slider-item">
+                        <label>Apertura: <span class="slider-value">50%</span></label>
+                        <input type="range" class="personality-slider" data-trait="Apertura" min="0" max="100" value="50" step="10">
+                    </div>
+                    <div class="slider-item">
+                        <label>Conciencia: <span class="slider-value">50%</span></label>
+                        <input type="range" class="personality-slider" data-trait="Conciencia" min="0" max="100" value="50" step="10">
+                    </div>
+                    <div class="slider-item">
+                        <label>Extroversión: <span class="slider-value">50%</span></label>
+                        <input type="range" class="personality-slider" data-trait="Extroversión" min="0" max="100" value="50" step="10">
+                    </div>
+                    <div class="slider-item">
+                        <label>Amabilidad: <span class="slider-value">50%</span></label>
+                        <input type="range" class="personality-slider" data-trait="Amabilidad" min="0" max="100" value="50" step="10">
+                    </div>
+                    <div class="slider-item">
+                        <label>Neuroticismo: <span class="slider-value">50%</span></label>
+                        <input type="range" class="personality-slider" data-trait="Neuroticismo" min="0" max="100" value="50" step="10">
+                    </div>
+                </div>
+                <button id="randomizePersonality" class="btn btn-secondary">Aleatorio</button>
+            </div>
+
+            <div class="form-group">
+                <label for="medicalConditions">Condiciones médicas:</label>
+                <select id="medicalConditions">
+                    <option value="Sí">Sí</option>
+                    <option value="No">No</option>
+                    <option value="Aleatorio">Aleatorio</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="psychiatricConditions">Condiciones psiquiátricas:</label>
+                <select id="psychiatricConditions">
+                    <option value="Sí">Sí</option>
+                    <option value="No">No</option>
+                    <option value="Aleatorio">Aleatorio</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="medications">Medicamentos:</label>
+                <select id="medications">
+                    <option value="Sí">Sí</option>
+                    <option value="No">No</option>
+                    <option value="Aleatorio">Aleatorio</option>
+                </select>
+            </div>
+
+            <button id="closeAdvancedOptions" class="btn btn-primary">Cerrar</button>
+        </div>
+    </div>
+
+    <!-- Ventana de Asignación de Triage -->
+    <div id="triageWindow" class="modal">
+        <div class="modal-content">
+            <div class="triage-content">
+                <div class="nurse-image">
+                    <i class="fas fa-user-nurse fa-4x"></i>
+                </div>
+                <div class="triage-message" id="triageMessage"></div>
+            </div>
+            <button id="acceptCaseBtn" class="btn btn-primary">Aceptar Caso</button>
+        </div>
+    </div>
+
+    <!-- Ventana Principal de Simulación -->
+    <div id="simulationWindow" class="modal">
+        <div class="modal-content simulation-content">
+            <div class="chat-container">
+                <div class="chat-header">
+                    <h3>Chat de Primeros Auxilios Psicológicos</h3>
+                    <div class="chat-controls">
+                        <button id="resourcesBtn" class="btn btn-secondary">
+                            <i class="fas fa-book"></i> Recursos
+                        </button>
+                        <button id="pareBtn" class="btn btn-danger">
+                            🚨 Derivación Urgente (PAREN)
+                        </button>
+                        <button id="endConversationBtn" class="btn btn-danger">
+                            Finalizar Conversación
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="chat-history" id="chatHistory"></div>
+                
+                <div class="chat-input-container">
+                    <div class="api-key-container">
+               <input type="password" id="apiKeyInput" placeholder="Ingrese su clave API de OpenAI" value="" aria-describedby="apiKeyHelp">
+               <small id="apiKeyHelp" style="display:block;color:#666;margin-top:4px;">La clave no se almacena y se usa solo en esta sesión.</small>
+                    </div>
+                    <div class="input-group">
+                        <textarea id="inputText" placeholder="Ingrese su mensaje aquí y presione Enter para enviar"></textarea>
+                        <button id="sendButton" class="btn btn-primary">
+                            <i class="fas fa-paper-plane"></i> Enviar
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="resources-panel">
+                <h4>Recursos de Apoyo</h4>
+                <div id="resourcesList"></div>
+                <button id="uploadMaterialBtn" class="btn btn-secondary">
+                    <i class="fas fa-upload"></i> Cargar Material
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ventana de Recursos -->
+    <div id="resourcesDialog" class="modal">
+        <div class="modal-content">
+            <h3>Seleccionar Recursos de Apoyo</h3>
+            <p>Seleccione los recursos relevantes para este caso:</p>
+            
+            <div class="resources-list">
+                <label><input type="checkbox" value="SAMU (Ambulancia): 131"> SAMU (Ambulancia): 131</label>
+                <label><input type="checkbox" value="BOMBEROS: 132"> BOMBEROS: 132</label>
+                <label><input type="checkbox" value="CARABINEROS (Policía): 133"> CARABINEROS (Policía): 133</label>
+                <label><input type="checkbox" value="Policía de Investigaciones: 134"> Policía de Investigaciones: 134</label>
+                <label><input type="checkbox" value="Centro de Apoyo a Víctimas: 600 818 1000"> Centro de Apoyo a Víctimas: 600 818 1000</label>
+                <label><input type="checkbox" value="Salud Responde: 600 360 7777"> Salud Responde: 600 360 7777</label>
+                <label><input type="checkbox" value="FONASA: 600 360 3000"> FONASA: 600 360 3000</label>
+                <label><input type="checkbox" value="Centro de la Mujer (SERNAM): 800 104 008"> Centro de la Mujer (SERNAM): 800 104 008</label>
+                <label><input type="checkbox" value="Defensoría Penal Pública: (2) 2439 6800"> Defensoría Penal Pública: (2) 2439 6800</label>
+            </div>
+            
+            <div class="button-group">
+                <button id="copyResourcesBtn" class="btn btn-secondary">Copiar selección</button>
+                <button id="applyResourcesBtn" class="btn btn-primary">Aplicar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ventana de Carga de Archivos -->
+    <div id="uploadDialog" class="modal">
+        <div class="modal-content">
+            <h3>Cargar Material de Apoyo</h3>
+            <p>Seleccione archivos desde su computador para agregar como recursos de apoyo:</p>
+            
+            <div class="upload-area">
+                <div class="upload-drop-zone" id="uploadDropZone">
+                    <i class="fas fa-cloud-upload-alt fa-3x"></i>
+                    <p>Arrastre archivos aquí o haga clic para seleccionar</p>
+                    <input type="file" id="fileInput" multiple accept=".pdf,.doc,.docx,.txt,.jpg,.jpeg,.png,.mp4,.mp3" style="display: none;">
+                </div>
+            </div>
+            
+            <div class="file-list" id="fileList">
+                <h4>Archivos seleccionados:</h4>
+                <div id="selectedFiles"></div>
+            </div>
+            
+            <div class="button-group">
+                <button id="cancelUploadBtn" class="btn btn-secondary">Cancelar</button>
+                <button id="confirmUploadBtn" class="btn btn-primary">Cargar Archivos</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ventana de Criterios PARE -->
+    <div id="pareDialog" class="modal">
+        <div class="modal-content">
+            <h3>Seleccionar Criterio PAREN Detectado</h3>
+            <p>Selecciona el criterio PAREN que observaste durante la simulación:</p>
+            
+            <select id="pareCriteria">
+                <option value="(P) Pérdida de contacto con la realidad">(P) Pérdida de contacto con la realidad</option>
+                <option value="(A) Agresión auto/hetero-dirigida">(A) Agresión auto/hetero-dirigida</option>
+                <option value="(R) Ausencia de respuesta a estímulos">(R) Ausencia de respuesta a estímulos</option>
+                <option value="(E) Tratamiento psiquiátrico actual o previo">(E) Tratamiento psiquiátrico actual o previo</option>
+                <option value="(N) Síntomas invalidantes que no ceden">(N) Síntomas invalidantes que no ceden</option>
+            </select>
+            
+            <div class="button-group">
+                <button id="confirmPareBtn" class="btn btn-primary">Confirmar</button>
+                <button id="cancelPareBtn" class="btn btn-secondary">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ventana de Menú -->
+    <div id="menuWindow" class="modal">
+        <div class="modal-content">
+            <h3>Conversación Finalizada</h3>
+            <p>La conversación ha terminado. Seleccione una opción para continuar.</p>
+            
+            <div class="menu-buttons">
+                <button id="progressBtn" class="btn btn-secondary">Progreso Anterior</button>
+                <button id="feedbackBtn" class="btn btn-primary">Ir al Feedback</button>
+                <button id="exportBtn" class="btn btn-secondary">Exportar Conversación</button>
+                <button id="exitBtn" class="btn btn-danger">Salir</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ventana de Feedback -->
+    <div id="feedbackWindow" class="modal">
+        <div class="modal-content feedback-content">
+            <div class="feedback-tabs">
+                <div class="tab-buttons">
+                    <button class="tab-btn active" data-tab="reflection">Reflexión Personal</button>
+                    <button class="tab-btn" data-tab="patient">Feedback del Paciente</button>
+                    <button class="tab-btn" data-tab="technical">Evaluación Técnica</button>
+                </div>
+                
+                <div class="tab-content">
+                    <!-- Pestaña de Reflexión Personal -->
+                    <div id="reflectionTab" class="tab-pane active">
+                        <h3>Reflexión Personal</h3>
+                        
+                        <div class="form-group">
+                            <label>Calificación general de la experiencia:</label>
+                            <select id="ratingCombo">
+                                <option value="1">1 - Muy insatisfactorio</option>
+                                <option value="2">2 - Insatisfactorio</option>
+                                <option value="3">3 - Neutral</option>
+                                <option value="4">4 - Satisfactorio</option>
+                                <option value="5">5 - Muy satisfactorio</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Reflexión personal sobre la experiencia:</label>
+                            <textarea id="reflectionText" placeholder="Describa sus pensamientos, sentimientos y aprendizajes durante la simulación..."></textarea>
+                        </div>
+                        
+                        <button id="nextToPatientBtn" class="btn btn-primary">Siguiente</button>
+                    </div>
+                    
+                    <!-- Pestaña de Feedback del Paciente -->
+                    <div id="patientTab" class="tab-pane">
+                        <h3>Feedback del Paciente</h3>
+                        
+                        <div class="form-group">
+                            <label>¿Cómo se sintió el paciente durante la interacción?</label>
+                            <select id="treatmentCombo">
+                                <option value="1">1 - Muy incómodo</option>
+                                <option value="2">2 - Incómodo</option>
+                                <option value="3">3 - Neutral</option>
+                                <option value="4">4 - Cómodo</option>
+                                <option value="5">5 - Muy cómodo</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Aspectos específicos del trato:</label>
+                            <div class="aspects-container">
+                                <div class="aspect-item">
+                                    <label>Empatía:</label>
+                                    <input type="range" class="aspect-slider" data-aspect="Empatía" min="1" max="5" value="1">
+                                    <span class="aspect-value">1</span>
+                                </div>
+                                <div class="aspect-item">
+                                    <label>Respeto:</label>
+                                    <input type="range" class="aspect-slider" data-aspect="Respeto" min="1" max="5" value="1">
+                                    <span class="aspect-value">1</span>
+                                </div>
+                                <div class="aspect-item">
+                                    <label>Claridad en la comunicación:</label>
+                                    <input type="range" class="aspect-slider" data-aspect="Claridad" min="1" max="5" value="1">
+                                    <span class="aspect-value">1</span>
+                                </div>
+                                <div class="aspect-item">
+                                    <label>Atención y escucha:</label>
+                                    <input type="range" class="aspect-slider" data-aspect="Atención" min="1" max="5" value="1">
+                                    <span class="aspect-value">1</span>
+                                </div>
+                                <div class="aspect-item">
+                                    <label>Seguridad transmitida:</label>
+                                    <input type="range" class="aspect-slider" data-aspect="Seguridad" min="1" max="5" value="1">
+                                    <span class="aspect-value">1</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Comentarios del paciente sobre la interacción:</label>
+                            <textarea id="patientComments" readonly></textarea>
+                        </div>
+                        
+                        <button id="nextToTechnicalBtn" class="btn btn-primary">Siguiente</button>
+                    </div>
+                    
+                    <!-- Pestaña de Evaluación Técnica -->
+                    <div id="technicalTab" class="tab-pane">
+                        <h3>Evaluación Técnica</h3>
+                        
+                        <div class="feedback-grid">
+                            <div class="feedback-block" data-letter="PAREN">
+                                <h4>🚨 Criterios PAREN (Derivación Urgente)</h4>
+                                <div class="feedback-text"></div>
+                            </div>
+                            
+                            <div class="feedback-block" data-letter="A">
+                                <h4>🟦 A. Escucha Activa</h4>
+                                <div class="feedback-text"></div>
+                                <div class="feedback-slider">
+                                    <label>Puntaje:</label>
+                                    <input type="range" class="score-slider" min="0" max="5" value="0">
+                                    <span class="score-value">0</span>
+                                </div>
+                            </div>
+                            
+                            <div class="feedback-block" data-letter="B">
+                                <h4>🟦 B. Reentrenamiento Respiratorio</h4>
+                                <div class="feedback-text"></div>
+                                <div class="feedback-slider">
+                                    <label>Puntaje:</label>
+                                    <input type="range" class="score-slider" min="0" max="5" value="0">
+                                    <span class="score-value">0</span>
+                                </div>
+                            </div>
+                            
+                            <div class="feedback-block" data-letter="C">
+                                <h4>🟦 C. Clasificación de Necesidades</h4>
+                                <div class="feedback-text"></div>
+                                <div class="feedback-slider">
+                                    <label>Puntaje:</label>
+                                    <input type="range" class="score-slider" min="0" max="5" value="0">
+                                    <span class="score-value">0</span>
+                                </div>
+                            </div>
+                            
+                            <div class="feedback-block" data-letter="D">
+                                <h4>🟦 D. Derivación a Redes</h4>
+                                <div class="feedback-text"></div>
+                                <div class="feedback-slider">
+                                    <label>Puntaje:</label>
+                                    <input type="range" class="score-slider" min="0" max="5" value="0">
+                                    <span class="score-value">0</span>
+                                </div>
+                            </div>
+                            
+                            <div class="feedback-block" data-letter="E">
+                                <h4>🟦 E. Psicoeducación</h4>
+                                <div class="feedback-text"></div>
+                                <div class="feedback-slider">
+                                    <label>Puntaje:</label>
+                                    <input type="range" class="score-slider" min="0" max="5" value="0">
+                                    <span class="score-value">0</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <button id="showSummaryBtn" class="btn btn-primary">Pasar al Resumen Final</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ventana de Resumen Final -->
+    <div id="summaryWindow" class="modal">
+        <div class="modal-content">
+            <h2>Resumen Final de la Evaluación</h2>
+            
+            <div class="charts-container">
+                <div class="chart-wrapper">
+                    <canvas id="patientChart"></canvas>
+                    <h4>Evaluación del Paciente</h4>
+                </div>
+                <div class="chart-wrapper">
+                    <canvas id="technicalChart"></canvas>
+                    <h4>Evaluación Técnica</h4>
+                </div>
+            </div>
+            
+            <div class="button-group">
+                <button id="backToFeedbackBtn" class="btn btn-secondary">Volver</button>
+                <button id="finishFeedbackBtn" class="btn btn-primary">Finalizar Feedback</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Indicador de carga -->
+    <div id="loadingIndicator" class="loading-overlay hidden">
+        <div class="loading-spinner"></div>
+        <p id="loadingText">Generando simulación...</p>
+    </div>
+
+                            <!-- Scripts -->
+                        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+                        <script src="codigo-interno/config.js"></script>
+                        <script src="codigo-interno/script.js"></script>
+</body>
+</html>

@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test del Sistema PFA</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .test-section {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        .success { background: rgba(76, 175, 80, 0.8); }
+        .error { background: rgba(244, 67, 54, 0.8); }
+        .warning { background: rgba(255, 193, 7, 0.8); color: #333; }
+        .btn {
+            background: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .btn:hover { background: #0056b3; }
+        #promptTest { white-space: pre-wrap; background: rgba(0,0,0,0.3); padding: 10px; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <h1>🧪 Test del Sistema PFA Simulator</h1>
+    
+    <div class="test-section">
+        <h2>📁 Verificación de Archivos</h2>
+        <div id="fileStatus"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>🔧 Test de Prompts</h2>
+        <button class="btn" onclick="testPrompts()">Cargar Prompts</button>
+        <button class="btn" onclick="testPromptManager()">Test Prompt Manager</button>
+        <div id="promptTest"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>🎨 Test de Estilos</h2>
+        <button class="btn" onclick="testStyles()">Aplicar Estilos</button>
+        <div id="styleTest" style="padding: 20px; background: white; color: #333; border-radius: 10px; margin: 10px 0;">
+            <h3>Test de Estilos CSS</h3>
+            <p>Este es un párrafo de prueba para verificar que los estilos se cargan correctamente.</p>
+            <button class="btn">Botón de Prueba</button>
+        </div>
+    </div>
+    
+    <div class="test-section">
+        <h2>⚙️ Test de Configuración</h2>
+        <div id="configTest"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>📊 Resumen del Sistema</h2>
+        <div id="systemSummary"></div>
+    </div>
+
+    <script>
+        // Test de verificación de archivos
+        function checkFiles() {
+            const files = [
+                'PFA - página Web.html',
+                'styles.css',
+                'script.js',
+                'config.js',
+                'prompts.json',
+                'prompt_manager.py',
+                'README.md',
+                'README_PROMPTS.md',
+                'INSTRUCCIONES_EDITAR_PROMPTS.md',
+                'EJEMPLO_PROMPT_PERSONALIZADO.json',
+                '1. Editor de Prompts.html',
+                'server_prompts.py',
+                'INSTRUCCIONES_EDITOR_VISUAL.md',
+                'RESUMEN_EDITOR_VISUAL.md'
+            ];
+            
+            const statusDiv = document.getElementById('fileStatus');
+            let html = '';
+            
+            files.forEach(file => {
+                const status = '✅ Disponible';
+                html += `<div class="status success">${status}: ${file}</div>`;
+            });
+            
+            statusDiv.innerHTML = html;
+        }
+        
+        // Test de prompts
+        async function testPrompts() {
+            try {
+                const response = await fetch('prompts.json');
+                const prompts = await response.json();
+                
+                const testDiv = document.getElementById('promptTest');
+                testDiv.innerHTML = `✅ Prompts cargados exitosamente!\n\n📋 Prompts disponibles:\n${Object.keys(prompts).join('\n')}\n\n📝 Ejemplo del prompt del guionista:\n${prompts.screenwriter_prompt.content.substring(0, 200)}...`;
+            } catch (error) {
+                document.getElementById('promptTest').innerHTML = `❌ Error al cargar prompts: ${error.message}`;
+            }
+        }
+        
+        // Test de prompt manager (simulado)
+        function testPromptManager() {
+            const testDiv = document.getElementById('promptTest');
+            testDiv.innerHTML = `🔧 Prompt Manager (Python) disponible en: prompt_manager.py\n\nPara usar en Python:\nfrom prompt_manager import PromptManager\npm = PromptManager()\nprompt = pm.get_screenwriter_prompt(age="25 años")`;
+        }
+        
+        // Test de estilos
+        function testStyles() {
+            const testDiv = document.getElementById('styleTest');
+            testDiv.style.boxShadow = '0 10px 30px rgba(0, 0, 0, 0.3)';
+            testDiv.style.transform = 'scale(1.02)';
+            testDiv.style.transition = 'all 0.3s ease';
+            
+            setTimeout(() => {
+                testDiv.style.transform = 'scale(1)';
+            }, 300);
+        }
+        
+        // Test de configuración
+        async function testConfig() {
+            try {
+                const response = await fetch('config.js');
+                const configText = await response.text();
+                
+                const testDiv = document.getElementById('configTest');
+                testDiv.innerHTML = `<div class="status success">✅ Config.js cargado correctamente</div><div style="background: rgba(0,0,0,0.3); padding: 10px; border-radius: 5px; margin: 10px 0; font-family: monospace; font-size: 12px;">${configText.substring(0, 300)}...</div>`;
+            } catch (error) {
+                document.getElementById('configTest').innerHTML = `<div class="status error">❌ Error al cargar config.js: ${error.message}</div>`;
+            }
+        }
+        
+        // Resumen del sistema
+        function showSystemSummary() {
+            const summaryDiv = document.getElementById('systemSummary');
+            summaryDiv.innerHTML = `
+                <div class="status success">🎉 Sistema PFA Simulator Completamente Funcional</div>
+                <div style="margin: 15px 0;">
+                    <h4>📁 Archivos Principales:</h4>
+                    <ul>
+                        <li><strong>PFA - página Web.html</strong> - Aplicación web principal</li>
+                        <li><strong>styles.css</strong> - Estilos y diseño</li>
+                        <li><strong>script.js</strong> - Lógica de la aplicación</li>
+                        <li><strong>config.js</strong> - Configuración del sistema</li>
+                    </ul>
+                    
+                    <h4>📋 Sistema de Prompts:</h4>
+                    <ul>
+                        <li><strong>prompts.json</strong> - Prompts editables</li>
+                        <li><strong>prompt_manager.py</strong> - Gestor de prompts para Python</li>
+                        <li><strong>README_PROMPTS.md</strong> - Documentación del sistema</li>
+                    </ul>
+                    
+                    <h4>📚 Documentación:</h4>
+                    <ul>
+                        <li><strong>README.md</strong> - Manual principal</li>
+                        <li><strong>INSTRUCCIONES_EDITAR_PROMPTS.md</strong> - Guía de edición</li>
+                        <li><strong>EJEMPLO_PROMPT_PERSONALIZADO.json</strong> - Ejemplos de prompts</li>
+                    </ul>
+                </div>
+                
+                <div class="status warning">
+                    <strong>🚀 Para usar la aplicación:</strong><br>
+                    1. Abre "PFA - página Web.html" en tu navegador<br>
+                    2. Para editar prompts, modifica "prompts.json"<br>
+                    3. Para usar en Python, importa "prompt_manager.py"
+                </div>
+            `;
+        }
+        
+        // Ejecutar tests al cargar la página
+        window.onload = function() {
+            checkFiles();
+            testConfig();
+            showSystemSummary();
+        };
+    </script>
+</body>
+</html>

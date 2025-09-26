@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PFA Simulator - Índice Principal</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+        
+        .header h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        
+        .main-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+        
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+        
+        .card h3 {
+            color: #007bff;
+            margin-bottom: 15px;
+            font-size: 1.4em;
+            border-bottom: 2px solid #e9ecef;
+            padding-bottom: 10px;
+        }
+        
+        .card p {
+            margin-bottom: 15px;
+            color: #666;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #007bff, #0056b3);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin: 5px;
+        }
+        
+        .btn:hover {
+            background: linear-gradient(135deg, #0056b3, #004085);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 123, 255, 0.4);
+        }
+        
+        .btn-primary { background: linear-gradient(135deg, #28a745, #20c997); }
+        .btn-primary:hover { background: linear-gradient(135deg, #20c997, #17a2b8); }
+        
+        .btn-warning { background: linear-gradient(135deg, #ffc107, #fd7e14); color: #333; }
+        .btn-warning:hover { background: linear-gradient(135deg, #fd7e14, #e83e8c); }
+        
+        .btn-danger { background: linear-gradient(135deg, #dc3545, #c82333); }
+        .btn-danger:hover { background: linear-gradient(135deg, #c82333, #bd2130); }
+        
+        .btn-info { background: linear-gradient(135deg, #17a2b8, #6f42c1); }
+        .btn-info:hover { background: linear-gradient(135deg, #6f42c1, #e83e8c); }
+        
+        .file-list {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border-left: 4px solid #007bff;
+        }
+        
+        .file-list h4 {
+            color: #007bff;
+            margin-bottom: 10px;
+        }
+        
+        .file-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .file-item:last-child {
+            border-bottom: none;
+        }
+        
+        .file-name {
+            font-weight: 500;
+            color: #495057;
+        }
+        
+        .file-size {
+            font-size: 0.9em;
+            color: #6c757d;
+        }
+        
+        .footer {
+            text-align: center;
+            color: white;
+            margin-top: 40px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .quick-actions {
+            text-align: center;
+            margin: 30px 0;
+        }
+        
+        .quick-actions .btn {
+            margin: 10px;
+            font-size: 1.1em;
+        }
+        
+        @media (max-width: 768px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 PFA Simulator</h1>
+            <p>Sistema Completo de Simulación de Primeros Auxilios Psicológicos</p>
+        </div>
+        
+        <div class="quick-actions">
+            <a href="2. PFA - página Web.html" class="btn btn-primary">🎮 Iniciar Aplicación</a>
+            <a href="1. Editor de Prompts.html" class="btn btn-warning">✏️ Editor Visual de Prompts</a>
+            <a href="codigo-interno/test_system.html" class="btn btn-info">🧪 Test del Sistema</a>
+        </div>
+        
+        <div class="main-grid">
+            <!-- Aplicación Principal -->
+            <div class="card">
+                <h3>🎮 Aplicación Principal</h3>
+                <p>La aplicación web completa del simulador de PFA con todas las funcionalidades implementadas.</p>
+                <div class="file-list">
+                    <h4>Archivos Principales:</h4>
+                    <div class="file-item">
+                        <span class="file-name">2. PFA - página Web.html</span>
+                        <span class="file-size">29KB</span>
+                    </div>
+                    <div class="file-item">
+                        <span class="file-name">1. Editor de Prompts.html</span>
+                        <span class="file-size">22KB</span>
+                    </div>
+                    <div class="file-item">
+                        <span class="file-name">INDEX.html</span>
+                        <span class="file-size">11KB</span>
+                    </div>
+                </div>
+                <a href="2. PFA - página Web.html" class="btn">🚀 Abrir Aplicación</a>
+                <a href="codigo-interno/test_system.html" class="btn btn-info">🧪 Probar Sistema</a>
+            </div>
+            
+            <!-- Sistema de Prompts -->
+            <div class="card">
+                <h3>📝 Sistema de Prompts</h3>
+                <p>Sistema completo para editar prompts sin conocimientos de programación. Incluye editor visual, gestor para Python y documentación detallada.</p>
+                <div class="file-list">
+                    <h4>Archivos del Sistema:</h4>
+                    <div class="file-item">
+                        <span class="file-name">1. Editor de Prompts.html</span>
+                        <span class="file-size">22KB</span>
+                    </div>
+                    <div class="file-item">
+                        <span class="file-name">📁 codigo-interno/</span>
+                        <span class="file-size">Carpeta</span>
+                    </div>
+                </div>
+                <a href="1. Editor de Prompts.html" class="btn btn-warning">✏️ Editor Visual</a>
+                <a href="codigo-interno/INSTRUCCIONES_EDITOR_VISUAL.md" class="btn btn-info">📚 Instrucciones</a>
+            </div>
+            
+            <!-- Documentación -->
+            <div class="card">
+                <h3>📚 Documentación</h3>
+                <p>Manuales completos, instrucciones de uso y ejemplos para aprovechar al máximo el sistema.</p>
+                <div class="file-list">
+                    <h4>Archivos de Ayuda:</h4>
+                    <div class="file-item">
+                        <span class="file-name">📁 codigo-interno/</span>
+                        <span class="file-size">Carpeta</span>
+                    </div>
+                    <div class="file-item">
+                        <span class="file-name">README.md</span>
+                        <span class="file-size">9.9KB</span>
+                    </div>
+                    <div class="file-item">
+                        <span class="file-name">INSTRUCCIONES_EDITOR_VISUAL.md</span>
+                        <span class="file-size">9.2KB</span>
+                    </div>
+                </div>
+                <a href="codigo-interno/README.md" class="btn btn-info">📖 Manual Principal</a>
+                <a href="codigo-interno/INSTRUCCIONES_EDITAR_PROMPTS.md" class="btn btn-warning">✏️ Guía de Edición</a>
+            </div>
+            
+            <!-- Herramientas de Desarrollo -->
+            <div class="card">
+                <h3>🔧 Herramientas de Desarrollo</h3>
+                <p>Herramientas para desarrolladores y usuarios avanzados que quieran personalizar o extender el sistema.</p>
+                <div class="file-list">
+                    <h4>Herramientas Disponibles:</h4>
+                    <div class="file-item">
+                        <span class="file-name">📁 codigo-interno/</span>
+                        <span class="file-size">Carpeta</span>
+                    </div>
+                    <div class="file-item">
+                        <span class="file-name">INDEX.html</span>
+                        <span class="file-size">Este archivo</span>
+                    </div>
+                </div>
+                <a href="codigo-interno/prompt_manager.py" class="btn btn-danger">🐍 Módulo Python</a>
+                <a href="codigo-interno/test_system.html" class="btn btn-info">🧪 Test del Sistema</a>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <h3>🎯 ¿Qué Hacer Ahora?</h3>
+            <p><strong>Para usar la aplicación:</strong> Haz clic en "Iniciar Aplicación" o abre "2. PFA - página Web.html"</p>
+            <p><strong>Para editar prompts:</strong> Abre "1. Editor de Prompts.html" en tu navegador</p>
+            <p><strong>Para código técnico:</strong> Consulta la carpeta "codigo-interno"</p>
+            <p><strong>Para ayuda:</strong> Consulta los archivos README en la carpeta "codigo-interno"</p>
+        </div>
+    </div>
+</body>
+</html>

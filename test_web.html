@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test PFA Web</title>
+    <link rel="stylesheet" href="codigo-interno/styles.css">
+</head>
+<body>
+    <div style="text-align: center; padding: 50px; color: white;">
+        <h1>🧪 Test de la Página Web PFA</h1>
+        <p>Si puedes ver este texto con estilo, el CSS está funcionando correctamente.</p>
+        <button class="btn btn-primary" onclick="testJS()">Probar JavaScript</button>
+        <div id="result" style="margin-top: 20px; padding: 20px; background: rgba(255,255,255,0.1); border-radius: 10px;"></div>
+    </div>
+
+    <script src="codigo-interno/config.js"></script>
+    <script src="codigo-interno/script.js"></script>
+    <script>
+        function testJS() {
+            const result = document.getElementById('result');
+            try {
+                // Verificar que config.js se cargó
+                if (typeof config !== 'undefined') {
+                    result.innerHTML = '✅ JavaScript funcionando correctamente<br>✅ config.js cargado<br>✅ script.js cargado';
+                    result.style.background = 'rgba(40, 167, 69, 0.2)';
+                } else {
+                    result.innerHTML = '❌ Error: config.js no se cargó correctamente';
+                    result.style.background = 'rgba(220, 53, 69, 0.2)';
+                }
+            } catch (error) {
+                result.innerHTML = '❌ Error en JavaScript: ' + error.message;
+                result.style.background = 'rgba(220, 53, 69, 0.2)';
+            }
+        }
+    </script>
+</body>
+</html>

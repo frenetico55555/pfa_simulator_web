@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editor Visual de Prompts - PFA Simulator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+        
+        .editor-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .editor-panel {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
+        }
+        
+        .editor-panel h3 {
+            color: #007bff;
+            margin-bottom: 20px;
+            font-size: 1.4em;
+            border-bottom: 2px solid #e9ecef;
+            padding-bottom: 10px;
+        }
+        
+        .prompt-selector {
+            margin-bottom: 20px;
+        }
+        
+        .prompt-selector label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #495057;
+        }
+        
+        .prompt-selector select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 16px;
+            background: white;
+            cursor: pointer;
+            transition: border-color 0.3s ease;
+        }
+        
+        .prompt-selector select:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+        }
+        
+        .prompt-description {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #17a2b8;
+        }
+        
+        .prompt-description h4 {
+            color: #17a2b8;
+            margin-bottom: 8px;
+        }
+        
+        .prompt-description p {
+            color: #6c757d;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        
+        .prompt-editor {
+            margin-bottom: 20px;
+        }
+        
+        .prompt-editor label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #495057;
+        }
+        
+        .prompt-editor textarea {
+            width: 100%;
+            min-height: 300px;
+            padding: 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: 'Courier New', monospace;
+            line-height: 1.5;
+            resize: vertical;
+            transition: border-color 0.3s ease;
+        }
+        
+        .prompt-editor textarea:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+        }
+        
+        .variables-info {
+            background: #e7f3ff;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #007bff;
+        }
+        
+        .variables-info h4 {
+            color: #007bff;
+            margin-bottom: 10px;
+        }
+        
+        .variables-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+        }
+        
+        .variable-item {
+            background: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            border: 1px solid #dee2e6;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #20c997, #17a2b8);
+            transform: translateY(-2px);
+        }
+        
+        .btn-secondary {
+            background: linear-gradient(135deg, #6c757d, #5a6268);
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: linear-gradient(135deg, #5a6268, #495057);
+            transform: translateY(-2px);
+        }
+        
+        .btn-warning {
+            background: linear-gradient(135deg, #ffc107, #fd7e14);
+            color: #333;
+        }
+        
+        .btn-warning:hover {
+            background: linear-gradient(135deg, #fd7e14, #e83e8c);
+            transform: translateY(-2px);
+        }
+        
+        .preview-panel {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
+        }
+        
+        .preview-content {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 20px;
+            min-height: 400px;
+            white-space: pre-wrap;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 14px;
+            line-height: 1.6;
+            overflow-y: auto;
+        }
+        
+        .status-bar {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+        }
+        
+        .status-success {
+            background: rgba(40, 167, 69, 0.8);
+        }
+        
+        .status-error {
+            background: rgba(220, 53, 69, 0.8);
+        }
+        
+        .status-warning {
+            background: rgba(255, 193, 7, 0.8);
+            color: #333;
+        }
+        
+        .help-section {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
+        }
+        
+        .help-section h3 {
+            color: #007bff;
+            margin-bottom: 20px;
+            font-size: 1.4em;
+            border-bottom: 2px solid #e9ecef;
+            padding-bottom: 10px;
+        }
+        
+        .help-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        .help-item {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #007bff;
+        }
+        
+        .help-item h4 {
+            color: #007bff;
+            margin-bottom: 10px;
+        }
+        
+        .help-item p {
+            color: #6c757d;
+            font-size: 14px;
+        }
+        
+        @media (max-width: 1200px) {
+            .editor-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>✏️ Editor Visual de Prompts</h1>
+            <p>Edita los prompts de la IA sin conocimientos de programación - Cambios en tiempo real</p>
+        </div>
+        
+        <div class="editor-layout">
+            <!-- Panel de Edición -->
+            <div class="editor-panel">
+                <h3>📝 Editor de Prompts</h3>
+                
+                <div class="prompt-selector">
+                    <label for="promptType">Selecciona el tipo de prompt:</label>
+                    <select id="promptType" onchange="loadPrompt()">
+                        <option value="">-- Selecciona un prompt --</option>
+                        <option value="screenwriter_prompt">🎭 Guionista (Crea historias de trauma)</option>
+                        <option value="triage_prompt">👩‍⚕️ Enfermera de Triage (Evalúa casos)</option>
+                        <option value="survivor_prompt">👤 Sobreviviente (Actúa como paciente)</option>
+                        <option value="patient_feedback_prompt">📊 Feedback del Paciente (Evalúa interacción)</option>
+                        <option value="technical_feedback_prompt">🔬 Evaluación Técnica (Protocolo ABCDE)</option>
+                    </select>
+                </div>
+                
+                <div id="promptDescription" class="prompt-description" style="display: none;">
+                    <h4>Descripción del Prompt</h4>
+                    <p id="descriptionText"></p>
+                </div>
+                
+                <div class="variables-info">
+                    <h4>🔧 Variables Disponibles</h4>
+                    <p>Puedes usar estas variables en tu prompt. Se reemplazarán automáticamente:</p>
+                    <div class="variables-list">
+                        <div class="variable-item">{age}</div>
+                        <div class="variable-item">{gender}</div>
+                        <div class="variable-item">{trauma_type}</div>
+                        <div class="variable-item">{education}</div>
+                        <div class="variable-item">{conversation}</div>
+                        <div class="variable-item">{current_date}</div>
+                        <div class="variable-item">{patient_info}</div>
+                    </div>
+                </div>
+                
+                <div class="prompt-editor">
+                    <label for="promptContent">Contenido del Prompt:</label>
+                    <textarea id="promptContent" placeholder="Selecciona un tipo de prompt para comenzar a editar..." oninput="updatePreview()"></textarea>
+                </div>
+                
+                <div class="action-buttons">
+                    <button class="btn btn-primary" onclick="savePrompt()">💾 Guardar Cambios</button>
+                    <button class="btn btn-secondary" onclick="resetPrompt()">🔄 Restaurar Original</button>
+                    <button class="btn btn-warning" onclick="exportPrompts()">📤 Exportar Prompts</button>
+                </div>
+            </div>
+            
+            <!-- Panel de Vista Previa -->
+            <div class="preview-panel">
+                <h3>👁️ Vista Previa del Prompt</h3>
+                <p style="margin-bottom: 15px; color: #6c757d;">Aquí verás cómo se verá tu prompt editado:</p>
+                <div id="previewContent" class="preview-content">
+                    Selecciona un tipo de prompt para ver la vista previa...
+                </div>
+            </div>
+        </div>
+        
+        <!-- Barra de Estado -->
+        <div id="statusBar" class="status-bar" style="display: none;">
+            <span id="statusMessage"></span>
+        </div>
+        
+        <!-- Sección de Ayuda -->
+        <div class="help-section">
+            <h3>❓ ¿Cómo Usar el Editor?</h3>
+            <div class="help-grid">
+                <div class="help-item">
+                    <h4>🎯 Paso 1: Seleccionar Prompt</h4>
+                    <p>Elige el tipo de prompt que quieres editar del menú desplegable. Cada tipo tiene una función específica en la simulación.</p>
+                </div>
+                <div class="help-item">
+                    <h4>✏️ Paso 2: Editar Contenido</h4>
+                    <p>Modifica el texto del prompt en el área de edición. Puedes usar variables como {age}, {gender}, etc. que se reemplazarán automáticamente.</p>
+                </div>
+                <div class="help-item">
+                    <h4>👁️ Paso 3: Ver Vista Previa</h4>
+                    <p>Observa los cambios en tiempo real en el panel derecho. Esto te permite ver exactamente cómo quedará tu prompt.</p>
+                </div>
+                <div class="help-item">
+                    <h4>💾 Paso 4: Guardar Cambios</h4>
+                    <p>Haz clic en "Guardar Cambios" para aplicar tus modificaciones. Los cambios se guardan automáticamente en el archivo prompts.json.</p>
+                </div>
+                <div class="help-item">
+                    <h4>🔧 Variables Útiles</h4>
+                    <p>Usa {age}, {gender}, {trauma_type}, {education}, {conversation}, {current_date}, {patient_info} para hacer prompts dinámicos.</p>
+                </div>
+                <div class="help-item">
+                    <h4>⚠️ Consejos Importantes</h4>
+                    <p>• No borres las variables entre llaves {}<br>• Mantén el formato del prompt original<br>• Los cambios se aplican inmediatamente</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentPrompts = {};
+        let originalPrompts = {};
+        
+        // Cargar prompts al iniciar
+        window.onload = async function() {
+            try {
+                const response = await fetch('codigo-interno/prompts.json');
+                currentPrompts = await response.json();
+                originalPrompts = JSON.parse(JSON.stringify(currentPrompts));
+                showStatus('✅ Prompts cargados correctamente', 'success');
+            } catch (error) {
+                showStatus('❌ Error al cargar prompts: ' + error.message, 'error');
+            }
+        };
+        
+        // Cargar prompt seleccionado
+        function loadPrompt() {
+            const promptType = document.getElementById('promptType').value;
+            const descriptionDiv = document.getElementById('promptDescription');
+            const contentTextarea = document.getElementById('promptContent');
+            
+            if (!promptType) {
+                descriptionDiv.style.display = 'none';
+                contentTextarea.value = '';
+                contentTextarea.placeholder = 'Selecciona un tipo de prompt para comenzar a editar...';
+                updatePreview();
+                return;
+            }
+            
+            const prompt = currentPrompts[promptType];
+            if (prompt) {
+                // Mostrar descripción
+                document.getElementById('descriptionText').textContent = prompt.description;
+                descriptionDiv.style.display = 'block';
+                
+                // Cargar contenido
+                contentTextarea.value = prompt.content;
+                contentTextarea.placeholder = 'Edita el contenido del prompt aquí...';
+                
+                // Actualizar vista previa
+                updatePreview();
+                
+                showStatus(`📝 Prompt "${promptType}" cargado`, 'success');
+            }
+        }
+        
+        // Actualizar vista previa en tiempo real
+        function updatePreview() {
+            const promptType = document.getElementById('promptType').value;
+            const content = document.getElementById('promptContent').value;
+            const previewDiv = document.getElementById('previewContent');
+            
+            if (!promptType || !content) {
+                previewDiv.textContent = 'Selecciona un tipo de prompt para ver la vista previa...';
+                return;
+            }
+            
+            // Crear vista previa con formato
+            let preview = content;
+            
+            // Resaltar variables
+            preview = preview.replace(/\{(\w+)\}/g, '<span style="background: #fff3cd; color: #856404; padding: 2px 4px; border-radius: 3px; font-weight: bold;">{$1}</span>');
+            
+            // Resaltar saltos de línea
+            preview = preview.replace(/\n/g, '<br>');
+            
+            previewDiv.innerHTML = preview;
+        }
+        
+        // Guardar prompt
+        async function savePrompt() {
+            const promptType = document.getElementById('promptType').value;
+            const content = document.getElementById('promptContent').value;
+            
+            if (!promptType) {
+                showStatus('❌ Selecciona un tipo de prompt primero', 'error');
+                return;
+            }
+            
+            if (!content.trim()) {
+                showStatus('❌ El prompt no puede estar vacío', 'error');
+                return;
+            }
+            
+            try {
+                // Actualizar en memoria
+                currentPrompts[promptType].content = content;
+                
+                // Intentar guardar en el servidor primero
+                try {
+                    const response = await fetch('http://localhost:8000/save_prompts', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(currentPrompts, null, 2)
+                    });
+                    
+                    if (response.ok) {
+                        showStatus('✅ Prompt guardado correctamente en el servidor', 'success');
+                        return;
+                    }
+                } catch (serverError) {
+                    console.log('Servidor no disponible, usando método alternativo...');
+                }
+                
+                // Fallback: descargar archivo actualizado
+                downloadPromptsFile();
+                showStatus('📤 Archivo descargado - Reemplaza prompts.json manualmente', 'warning');
+                
+            } catch (error) {
+                showStatus('❌ Error al guardar: ' + error.message, 'error');
+                downloadPromptsFile();
+            }
+        }
+        
+        // Restaurar prompt original
+        function resetPrompt() {
+            const promptType = document.getElementById('promptType').value;
+            
+            if (!promptType) {
+                showStatus('❌ Selecciona un tipo de prompt primero', 'error');
+                return;
+            }
+            
+            if (confirm('¿Estás seguro de que quieres restaurar el prompt original? Se perderán todos los cambios.')) {
+                const original = originalPrompts[promptType];
+                if (original) {
+                    currentPrompts[promptType] = JSON.parse(JSON.stringify(original));
+                    document.getElementById('promptContent').value = original.content;
+                    updatePreview();
+                    showStatus('🔄 Prompt restaurado al original', 'warning');
+                }
+            }
+        }
+        
+        // Exportar prompts
+        function exportPrompts() {
+            downloadPromptsFile();
+            showStatus('📤 Archivo de prompts descargado', 'success');
+        }
+        
+        // Descargar archivo de prompts
+        function downloadPromptsFile() {
+            const dataStr = JSON.stringify(currentPrompts, null, 2);
+            const dataBlob = new Blob([dataStr], {type: 'application/json'});
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'prompts_editados.json';
+            link.click();
+            URL.revokeObjectURL(url);
+        }
+        
+        // Mostrar mensaje de estado
+        function showStatus(message, type) {
+            const statusBar = document.getElementById('statusBar');
+            const statusMessage = document.getElementById('statusMessage');
+            
+            statusMessage.textContent = message;
+            statusBar.className = `status-bar status-${type}`;
+            statusBar.style.display = 'block';
+            
+            // Ocultar después de 5 segundos
+            setTimeout(() => {
+                statusBar.style.display = 'none';
+            }, 5000);
+        }
+        
+        // Auto-guardado cada 30 segundos
+        setInterval(() => {
+            const promptType = document.getElementById('promptType').value;
+            if (promptType && document.getElementById('promptContent').value.trim()) {
+                // Solo auto-guardar si hay cambios
+                const currentContent = document.getElementById('promptContent').value;
+                const savedContent = currentPrompts[promptType]?.content;
+                
+                if (currentContent !== savedContent) {
+                    savePrompt();
+                }
+            }
+        }, 30000);
+    </script>
+</body>
+</html>
