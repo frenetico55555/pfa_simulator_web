@@ -8,6 +8,7 @@ Todas las notas de cambios relevantes del proyecto. Sigue el formato Keep a Chan
 
 - Añadida versión minificada/ligeramente ofuscada `script.min.js` y cargador condicional en la aplicación principal.
 - Parámetro `?dev=1` fuerza uso de `script.js` legible para depuración local.
+- Cabeceras legales añadidas a HTML secundarios (INDEX, app, editor, test, 404) y limpieza de duplicado en INDEX.
 
 ### 🧪 Próximos (propuestos)
 
