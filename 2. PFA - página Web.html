@@ -25,8 +25,24 @@
             const btn=document.getElementById('closeLegalBanner');
             if(localStorage.getItem(key)==='1'){
                 banner.style.display='none';
+                // Crear pequeño botón para restaurar el banner si fue ocultado previamente
+                const restore=document.createElement('button');
+                restore.id='pfaRestoreBannerBtn';
+                restore.textContent='Aviso Legal';
+                restore.style.cssText='position:fixed;bottom:6px;left:6px;z-index:3001;background:#1f2937;color:#fff;border:1px solid #475569;padding:4px 8px;font-size:11px;border-radius:4px;cursor:pointer;opacity:0.75;';
+                restore.addEventListener('mouseenter',()=>restore.style.opacity='1');
+                restore.addEventListener('mouseleave',()=>restore.style.opacity='0.75');
+                restore.addEventListener('click',()=>{localStorage.removeItem(key);banner.style.display='flex';restore.remove();});
+                document.body.appendChild(restore);
             }
             btn.addEventListener('click',()=>{banner.style.display='none';localStorage.setItem(key,'1');});
+            // Exponer función global para restaurar desde consola si se requiere
+            window.resetLegalBanner = function(){
+                localStorage.removeItem(key);
+                banner.style.display='flex';
+                const r=document.getElementById('pfaRestoreBannerBtn');
+                if(r) r.remove();
+            };
         } catch(e) { console.warn('Legal banner init error', e); }
     })();
     </script>
@@ -586,7 +602,79 @@
                             <!-- Scripts -->
                         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
                         <script src="codigo-interno/config.js"></script>
-                        <!-- Cargador condicional: usa versión minificada en producción, original si ?dev=1 -->
-                        <script>(function(){const useDev=/[?&]dev=1/.test(location.search);const s=document.createElement('script');s.src=useDev?'codigo-interno/script.js':'codigo-interno/script.min.js';s.defer=true;document.currentScript.parentNode.appendChild(s);})();</script>
+                        <!-- Loader robusto con fallback y diagnóstico -->
+                        <script>
+                        (function(){
+                            const BOOT_VERSION='loader_v2';
+                            const wantDev=/[?&]dev=1/.test(location.search);
+                            const primarySrc= wantDev ? 'codigo-interno/script.js' : 'codigo-interno/script.min.js';
+                            const altSrc    = wantDev ? 'codigo-interno/script.min.js' : 'codigo-interno/script.js';
+                            const tried=[]; window.PFA_BOOT_LOG=[];
+                            function log(msg){
+                                const line= new Date().toISOString()+ ' ['+BOOT_VERSION+'] '+ msg;
+                                window.PFA_BOOT_LOG.push(line);
+                                console.log('%cPFA','background:#0ea5e9;color:#fff;padding:2px 4px;border-radius:3px', line);
+                            }
+                            function inject(src,label){
+                                if(tried.includes(src)) return;
+                                tried.push(src);
+                                log('Cargando '+label+': '+src);
+                                const s=document.createElement('script');
+                                s.src=src;
+                                s.onload=()=>{ log('OK '+label); verifySoon(); };
+                                s.onerror=()=>{ log('ERROR '+label); attemptFallback(); };
+                                document.head.appendChild(s);
+                            }
+                            function verifySoon(){
+                                setTimeout(()=>{
+                                    if(window.pfaSimulator){
+                                        log('Inicialización detectada (PFASimulator listo).');
+                                    } else {
+                                        log('PFASimulator no presente tras carga. Intentando fallback.');
+                                        attemptFallback();
+                                    }
+                                }, 80);
+                            }
+                            function attemptFallback(){
+                                if(window.pfaSimulator) return; // Ya inicializó
+                                if(!tried.includes(altSrc)){
+                                    log('Intentando fallback: '+altSrc);
+                                    inject(altSrc,'fallback');
+                                } else {
+                                    showFailurePanel();
+                                }
+                            }
+                            function showFailurePanel(){
+                                if(window.pfaSimulator || document.getElementById('pfaBootFailure')) return;
+                                log('Fallo al cargar ambos scripts. Mostrando panel de error.');
+                                const div=document.createElement('div');
+                                div.id='pfaBootFailure';
+                                div.innerHTML='<strong>Fallo al iniciar la aplicación.</strong><br>Intenta recargar, usar <code>?dev=1</code> o revisar la consola.'+
+                                  '<div style="margin-top:6px;display:flex;gap:8px;flex-wrap:wrap;">'+
+                                  '<button id="pfaReloadBtn" style="background:#0ea5e9;border:none;color:#fff;padding:4px 10px;border-radius:4px;cursor:pointer;">Recargar</button>'+
+                                  (wantDev?'<button id="pfaSwitchBtn" style="background:#334155;border:none;color:#fff;padding:4px 10px;border-radius:4px;cursor:pointer;">Modo minificado</button>':'<button id="pfaSwitchBtn" style="background:#334155;border:none;color:#fff;padding:4px 10px;border-radius:4px;cursor:pointer;">Modo dev</button>')+
+                                  '<button id="pfaLogBtn" style="background:#475569;border:none;color:#fff;padding:4px 10px;border-radius:4px;cursor:pointer;">Ver log</button>'+
+                                  '</div>';
+                                div.style.cssText='position:fixed;top:0;left:0;right:0;z-index:4000;background:#dc2626;color:#fff;padding:12px;font:13px system-ui,Arial;border-bottom:3px solid #991b1b;box-shadow:0 4px 12px rgba(0,0,0,.35);';
+                                document.body.appendChild(div);
+                                document.getElementById('pfaReloadBtn').onclick=()=>location.reload();
+                                document.getElementById('pfaSwitchBtn').onclick=()=>{
+                                    const url=new URL(location.href);
+                                    if(wantDev){
+                                        url.searchParams.delete('dev');
+                                    } else {
+                                        url.searchParams.set('dev','1');
+                                    }
+                                    location.href=url.toString();
+                                };
+                                document.getElementById('pfaLogBtn').onclick=()=>{
+                                    alert((window.PFA_BOOT_LOG||[]).join('\n')); };
+                            }
+                            // Intento primario
+                            inject(primarySrc,'primario');
+                            // Timeout de seguridad: si en 2500ms no está listo, fallback
+                            setTimeout(()=>{ if(!window.pfaSimulator) { log('Timeout de inicialización. Activando fallback.'); attemptFallback(); } }, 2500);
+                        })();
+                        </script>
 </body>
 </html>
