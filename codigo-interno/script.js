@@ -9,13 +9,42 @@ class PFASimulator {
         this.pareDetected = null;
         this.story = '';
         this.triageEvaluation = '';
+        // Modo demo (sin llamadas reales) controlado por query ?demo=1 o toggle
+        const urlParams = new URLSearchParams(window.location.search);
+        this.demoMode = urlParams.get('demo') === '1';
+        this.apiKeyInput = null;
+        this.apiKeyValid = false;
         
         this.initializeEventListeners();
         this.setupSliders();
+        this.initAPIKeyPersistence();
     }
 
     // Inicializar todos los event listeners
     initializeEventListeners() {
+        // Referencia al input de API key (puede no existir aún en etapas iniciales)
+        this.apiKeyInput = document.getElementById('apiKeyInput');
+        if (this.apiKeyInput) {
+            this.apiKeyInput.addEventListener('input', () => {
+                const value = this.apiKeyInput.value.trim();
+                if (value) {
+                    localStorage.setItem('pfa_api_key', value);
+                }
+                this.validateAndMarkAPIKey();
+            });
+        }
+
+        const demoToggle = document.getElementById('demoModeToggle');
+        if (demoToggle) {
+            demoToggle.addEventListener('change', (e) => {
+                this.demoMode = e.target.checked;
+                if (this.demoMode) {
+                    this.showInfoMessage('Modo demo activado: se generarán respuestas simuladas sin usar la API.');
+                } else {
+                    this.showInfoMessage('Modo demo desactivado: se usarán respuestas reales (requiere API key).');
+                }
+            });
+        }
         // Configuración de simulación
         document.getElementById('difficultySlider').addEventListener('input', (e) => {
             document.getElementById('difficultyValue').textContent = e.target.value + '%';
@@ -159,6 +188,44 @@ class PFASimulator {
         document.getElementById('finishFeedbackBtn').addEventListener('click', () => {
             this.finishFeedback();
         });
+    }
+
+    // Inicializar persistencia de API key
+    initAPIKeyPersistence() {
+        if (!this.apiKeyInput) return;
+        const saved = localStorage.getItem('pfa_api_key');
+        if (saved && saved.startsWith('sk-')) {
+            this.apiKeyInput.value = saved;
+            this.validateAndMarkAPIKey();
+        }
+        // Reflejar estado de demo si viene por query
+        const demoToggle = document.getElementById('demoModeToggle');
+        if (demoToggle) {
+            demoToggle.checked = this.demoMode;
+        }
+    }
+
+    // Validar API key y mostrar feedback visual
+    validateAndMarkAPIKey() {
+        if (!this.apiKeyInput) return false;
+        const value = this.apiKeyInput.value.trim();
+        const valid = /^sk-[a-zA-Z0-9-_]{10,}/.test(value);
+        this.apiKeyValid = valid;
+        this.apiKeyInput.style.border = valid ? '2px solid #28a745' : (value ? '2px solid #dc3545' : '1px solid #ccc');
+        const hint = document.getElementById('apiKeyHint');
+        if (hint) {
+            if (!value) {
+                hint.textContent = 'Ingresa tu clave de OpenAI (no se envía a ningún servidor externo, solo a OpenAI).';
+                hint.style.color = '#666';
+            } else if (!valid) {
+                hint.textContent = 'Formato de clave no reconocido. Debe comenzar con sk-';
+                hint.style.color = '#dc3545';
+            } else {
+                hint.textContent = 'Clave válida.';
+                hint.style.color = '#28a745';
+            }
+        }
+        return valid;
     }
 
     // Configurar sliders de personalidad
@@ -358,34 +425,64 @@ class PFASimulator {
 
     // Llamar a OpenAI
     async callOpenAI(prompt) {
-        const apiKey = document.getElementById('apiKeyInput').value.trim();
-        if (!apiKey) {
-            throw new Error('API key no proporcionada');
+        // DEMO MODE: retorna una respuesta simulada sin llamar a la API real
+        if (this.demoMode) {
+            return this.generateDemoResponse(prompt);
         }
 
-        const response = await fetch('https://api.openai.com/v1/chat/completions', {
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${apiKey}`,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                model: this.selectedModel,
-                messages: [
-                    { role: 'system', content: 'Eres un asistente experto en simulación médica.' },
-                    { role: 'user', content: prompt }
-                ],
-                max_tokens: 1000,
-                temperature: 0.7
-            })
-        });
+        const apiKey = this.apiKeyInput ? this.apiKeyInput.value.trim() : '';
+        if (!apiKey) {
+            throw new Error('API key no proporcionada. Ingrésala o activa modo demo.');
+        }
+        if (!this.validateAndMarkAPIKey()) {
+            throw new Error('API key con formato inválido.');
+        }
+        let response;
+        try {
+            response = await fetch('https://api.openai.com/v1/chat/completions', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${apiKey}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    model: this.selectedModel,
+                    messages: [
+                        { role: 'system', content: 'Eres un asistente experto en simulación médica.' },
+                        { role: 'user', content: prompt }
+                    ],
+                    max_tokens: 1000,
+                    temperature: 0.7
+                })
+            });
+        } catch (netErr) {
+            throw new Error('No se pudo conectar a OpenAI. Revisa tu conexión.');
+        }
 
         if (!response.ok) {
+            if (response.status === 401) {
+                throw new Error('Clave API rechazada (401). Verifica que sea correcta y tenga permisos.');
+            }
+            if (response.status === 429) {
+                throw new Error('Límite de uso excedido (429). Intenta más tarde.');
+            }
             throw new Error(`Error de API: ${response.status}`);
         }
 
         const data = await response.json();
-        return data.choices[0].message.content;
+        const content = data?.choices?.[0]?.message?.content || '[Respuesta vacía]';
+        return content;
+    }
+
+    // Generar respuesta de demostración (sin API)
+    generateDemoResponse(prompt) {
+        const seed = prompt.length;
+        const sample = [
+            'Esto es una respuesta simulada de demostración para que puedas probar la interfaz sin consumir tu cuota.',
+            'El modo demo está activo: ninguna llamada real se hace a OpenAI y los contenidos son genéricos.',
+            'Puedes desactivar el modo demo cuando ingreses una API key válida para obtener contenido realista.'
+        ];
+        return sample[seed % sample.length];
     }
 
     // Mostrar ventana de triage
@@ -835,6 +932,27 @@ class PFASimulator {
     // Ocultar indicador de carga
     hideLoading() {
         document.getElementById('loadingIndicator').classList.add('hidden');
+    }
+
+    // Mensaje informativo no intrusivo
+    showInfoMessage(msg) {
+        console.log('[INFO]', msg);
+        const existing = document.getElementById('pfaInfoToast');
+        if (existing) existing.remove();
+        const div = document.createElement('div');
+        div.id = 'pfaInfoToast';
+        div.style.position = 'fixed';
+        div.style.bottom = '16px';
+        div.style.right = '16px';
+        div.style.background = '#1f2937';
+        div.style.color = '#fff';
+        div.style.padding = '12px 16px';
+        div.style.borderRadius = '8px';
+        div.style.fontSize = '14px';
+        div.style.boxShadow = '0 4px 16px rgba(0,0,0,0.3)';
+        div.textContent = msg;
+        document.body.appendChild(div);
+        setTimeout(()=>{ div.remove(); }, 5000);
     }
 
     // Mostrar recursos
