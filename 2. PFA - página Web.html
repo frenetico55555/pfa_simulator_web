@@ -632,8 +632,24 @@
                                     } else {
                                         log('PFASimulator no presente tras carga. Intentando fallback.');
                                         attemptFallback();
+                                        // Intento de inicialización defensiva si el script cargó pero no se auto-inicializó
+                                        safeLateInit();
                                     }
                                 }, 80);
+                            }
+                            function safeLateInit(){
+                                if(window.pfaSimulator) return;
+                                try {
+                                    if(typeof PFASimulator==='function'){ // en script.js original sería clase PFASimulator; en min se llama 'e'
+                                        window.pfaSimulator = new PFASimulator();
+                                        log('Inicialización manual tardía (PFASimulator) exitosa.');
+                                    } else if(typeof e==='function' && !window.pfaSimulator) { // fallback al nombre minificado
+                                        window.pfaSimulator = new e();
+                                        log('Inicialización manual tardía usando clase minificada (e) exitosa.');
+                                    }
+                                } catch(err){
+                                    log('Error en safeLateInit: '+ (err && err.message ? err.message : err));
+                                }
                             }
                             function attemptFallback(){
                                 if(window.pfaSimulator) return; // Ya inicializó
@@ -673,7 +689,7 @@
                             // Intento primario
                             inject(primarySrc,'primario');
                             // Timeout de seguridad: si en 2500ms no está listo, fallback
-                            setTimeout(()=>{ if(!window.pfaSimulator) { log('Timeout de inicialización. Activando fallback.'); attemptFallback(); } }, 2500);
+                            setTimeout(()=>{ if(!window.pfaSimulator) { log('Timeout de inicialización. Activando fallback.'); attemptFallback(); safeLateInit(); } }, 2500);
                         })();
                         </script>
 </body>

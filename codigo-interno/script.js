@@ -1170,8 +1170,28 @@ class PFASimulator {
     }
 }
 
-// Inicializar la aplicación cuando se cargue la página
-document.addEventListener('DOMContentLoaded', () => {
-    window.pfaSimulator = new PFASimulator();
-});
+// Inicialización robusta que funciona aunque el script se inyecte después de que el DOM haya cargado.
+(function initPFASimulatorSafely(){
+    if (window.pfaSimulator) { return; }
+    const boot = () => {
+        try {
+            if (!window.pfaSimulator) {
+                window.pfaSimulator = new PFASimulator();
+                if (window.PFA_BOOT_LOG) {
+                    window.PFA_BOOT_LOG.push('[init] PFASimulator instanciado OK (script.js)');
+                }
+            }
+        } catch (err) {
+            console.error('Error inicializando PFASimulator:', err);
+            if (window.PFA_BOOT_LOG) {
+                window.PFA_BOOT_LOG.push('[init-error] ' + (err && err.message ? err.message : err));
+            }
+        }
+    };
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', boot, { once: true });
+    } else {
+        boot();
+    }
+})();
 
