@@ -27,6 +27,7 @@ codigo-interno/           # Lógica, estilos, prompts y utilidades
 2. Abrir `INDEX.html` o directamente `2. PFA - página Web.html` en el navegador.
 3. Ingresar tu propia API Key de OpenAI (no se guarda).
 4. Configurar parámetros y comenzar la simulación.
+5. (Opcional) Usar la versión publicada en GitHub Pages cuando el workflow se ejecute: `https://frenetico55555.github.io/pfa_simulator_web/`
 
 ## Seguridad
 
