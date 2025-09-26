@@ -66,6 +66,19 @@ Este proyecto es software propietario. Consulta:
 
 No se permite redistribución, creación de obras derivadas ni uso comercial sin autorización expresa por escrito. El sistema de prompts, estructura de evaluación ABCDE/PAREN y lógica de simulación forman parte de la obra protegida.
 
+### Resumen de Restricciones (Uso No Permitido)
+
+Las siguientes acciones están expresamente prohibidas sin autorización escrita del titular:
+
+- Reempaquetar, redistribuir o publicar el código o prompts en repositorios públicos o privados ajenos.
+- Crear productos, cursos, plataformas o servicios comerciales basados en esta aplicación o sus prompts.
+- Extraer masivamente prompts o lógica para entrenar/u optimizar otros modelos o datasets.
+- Usar el simulador como herramienta de triage, diagnóstico clínico real o sustituto de intervención profesional.
+- Quitar avisos legales, cabeceras de copyright o alterar referencias a los autores.
+- Intentar desofuscar, descompilar o revertir intencionalmente la versión minificada más allá de lo necesario para auditoría legítima interna.
+
+Si tienes una necesidad legítima fuera de este marco, solicita permiso de forma previa (ver contacto en `TERMS_OF_USE.md`).
+
 ## Autores
 
 - Rodrigo A. Figueroa, MD, MHA, PhD(c) y equipo colaborador.

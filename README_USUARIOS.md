@@ -66,4 +66,18 @@
 - 📚 **Para documentación**: carpeta `codigo-interno`
 - ⚠️ **No toques** los archivos de código
 
+---
+
+### 🚫 Resumen Rápido de Prohibiciones
+
+No está permitido:
+
+- Compartir este paquete o sus prompts fuera de tu entorno autorizado.
+- Usarlo para evaluación clínica real o decisiones de salud.
+- Vender, licenciar o incluir este contenido en plataformas comerciales.
+- Copiar masivamente los prompts para entrenar otros sistemas.
+- Eliminar los avisos legales o este bloque informativo.
+
+Para dudas o permisos especiales: revisa `TERMS_OF_USE.md`.
+
 **¡Disfruta usando el simulador PFA!** 🚀✨
