@@ -1,0 +1,34 @@
+# Proprietary License / Licencia Propietaria
+
+Copyright (c) 2025 Rodrigo A. Figueroa, MD, MHA, PhD(c) y colaboradores autorizados.
+Todos los derechos reservados / All rights reserved.
+
+PERMISOS LIMITADOS:
+
+- Se permite visualizar y ejecutar la aplicación con fines estrictamente educativos y demostrativos.
+- No se concede ninguna licencia para copiar, modificar, fusionar, publicar, distribuir, sublicenciar, crear obras derivadas o explotar comercialmente el software, su contenido (incluyendo prompts), documentación o partes del mismo sin consentimiento escrito expreso.
+
+RESTRICCIONES:
+
+Queda expresamente prohibido:
+
+1. Redistribuir el código fuente o compilado.
+2. Crear versiones modificadas, forks públicos o derivados sin autorización previa por escrito.
+3. Integrar partes de este código en otros proyectos sin permiso.
+4. Usar el sistema en contextos clínicos reales o de soporte psicológico directo a pacientes.
+5. Usar prompts o textos internos para entrenamiento de modelos sin autorización.
+
+PROPIEDAD INTELECTUAL:
+El diseño, lógica, estructura de prompts, evaluaciones ABCDE/PAREN y documentación asociada constituyen obra intelectual protegida.
+
+SIN GARANTÍAS:
+El software se proporciona "TAL CUAL", sin garantías de ningún tipo. Uso bajo responsabilidad del usuario.
+
+LIMITACIÓN DE RESPONSABILIDAD:
+En ningún caso los autores serán responsables por daños directos, indirectos, incidentales, especiales, ejemplares o consecuentes derivados del uso del software.
+
+SOLICITUDES DE USO / LICENCIAMIENTO:
+
+Para permisos especiales, acuerdos institucionales, investigación o extensiones: contactar a <mailto:rfiguerc@uc.cl>
+
+Aceptas estos términos al usar este repositorio o ejecutar cualquier archivo del mismo.

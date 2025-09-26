@@ -52,9 +52,18 @@ Luego acceder a: <http://localhost:8000> y usar el editor.
 - Persistencia en localStorage / IndexedDB de sesiones.
 - Tests automáticos y validación robusta de formato de feedback.
 
-## Licencia
+## Licencia y Propiedad Intelectual
 
-Todos los derechos reservados.
+Este proyecto es software propietario. Consulta:
+
+- `LICENSE` (licencia de uso restringido)
+- `TERMS_OF_USE.md` (términos de uso)
+- `COPYRIGHT` (aviso de derechos)
+- `NOTICE` (resumen legal)
+- `SECURITY.md` (política de seguridad)
+- `CONTRIBUTING.md` (política de contribución limitada)
+
+No se permite redistribución, creación de obras derivadas ni uso comercial sin autorización expresa por escrito. El sistema de prompts, estructura de evaluación ABCDE/PAREN y lógica de simulación forman parte de la obra protegida.
 
 ## Autores
 
