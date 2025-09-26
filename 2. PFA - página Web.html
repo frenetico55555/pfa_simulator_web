@@ -12,6 +12,19 @@
     <div id="simulationConfigWindow" class="modal active">
         <div class="modal-content">
             <h2>Configuración de Simulación de PFA</h2>
+            <div class="form-group" style="margin-top:8px;">
+                <label style="display:flex;flex-direction:column;gap:6px;font-weight:600;">
+                    Clave OpenAI / Modo Demo:
+                    <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;">
+                        <input type="password" id="apiKeyInput" placeholder="sk-... (opcional si usas Demo)" aria-describedby="apiKeyHint" style="flex:1;min-width:260px;padding:6px 10px;" />
+                        <label style="display:inline-flex;align-items:center;gap:4px;font-weight:500;background:#f1f5f9;padding:4px 8px;border-radius:6px;cursor:pointer;font-size:13px;">
+                            <input type="checkbox" id="demoModeToggle" /> Demo
+                        </label>
+                    </div>
+                    <small id="apiKeyHint" style="color:#555;font-weight:400;">Ingresa tu propia clave para respuestas reales. Activa "Demo" para respuestas simuladas sin costo.</small>
+                    <small style="color:#777;font-size:11px;font-weight:400;">La clave solo vive en tu navegador (localStorage) y se envía directamente a OpenAI. No pasa por un servidor propio.</small>
+                </label>
+            </div>
             
             <div class="form-group">
                 <label for="providerName">Tu nombre (proveedor de PFA):</label>
@@ -256,17 +269,7 @@
                 <div class="chat-history" id="chatHistory"></div>
                 
                 <div class="chat-input-container">
-                    <div class="api-key-container" style="display:flex;flex-direction:column;gap:4px;">
-                        <label style="font-size:12px;color:#555;display:flex;align-items:center;gap:8px;">
-                            <span>Clave OpenAI:</span>
-                            <input type="password" id="apiKeyInput" placeholder="sk-..." value="" aria-describedby="apiKeyHint" style="flex:1;min-width:260px;padding:6px 8px;" />
-                            <label style="display:inline-flex;align-items:center;gap:4px;font-weight:normal;font-size:11px;background:#f1f5f9;padding:4px 6px;border-radius:4px;cursor:pointer;">
-                                <input type="checkbox" id="demoModeToggle" /> Demo
-                            </label>
-                        </label>
-                        <small id="apiKeyHint" style="display:block;color:#666;">Ingresa tu clave o activa modo demo.</small>
-                        <small style="display:block;color:#888;font-size:11px;">La clave se guarda localmente (localStorage) para tu conveniencia y nunca se envía a otro servidor aparte de OpenAI. Activa "Demo" para respuestas genéricas sin costo.</small>
-                    </div>
+                        <!-- API key y modo demo ahora se configuran en la ventana inicial -->
                     <div class="input-group">
                         <textarea id="inputText" placeholder="Ingrese su mensaje aquí y presione Enter para enviar"></textarea>
                         <button id="sendButton" class="btn btn-primary">
