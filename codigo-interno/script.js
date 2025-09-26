@@ -1,3 +1,9 @@
+/*
+ * PFA Simulator Web - Core Logic
+ * Copyright (c) 2025 Rodrigo A. Figueroa y colaboradores.
+ * Propietario. Uso restringido educativo. No redistribuir ni crear derivados sin autorización escrita.
+ * Ver LICENSE, TERMS_OF_USE.md y NOTICE.
+ */
 // Clase principal de la aplicación
 class PFASimulator {
     constructor() {

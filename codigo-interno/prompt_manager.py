@@ -1,6 +1,10 @@
 """
 Prompt Manager para el Simulador de Primeros Auxilios Psicológicos
 
+Obra Propietaria © 2025 Rodrigo A. Figueroa y colaboradores autorizados.
+Uso exclusivamente educativo interno. Prohibida la redistribución, extracción masiva de prompts
+o creación de derivados sin autorización escrita. Ver LICENSE / TERMS_OF_USE.md.
+
 Este módulo permite cargar y gestionar prompts desde un archivo JSON externo,
 facilitando la edición de prompts para personas sin conocimientos de programación.
 
@@ -82,7 +86,7 @@ class PromptManager:
             return self.prompts[prompt_name]["content"]
         else:
             print(f"⚠️ Prompt '{prompt_name}' no encontrado.")
-            return f"Prompt '{promrompt_name}' no encontrado en la configuración."
+            return f"Prompt '{prompt_name}' no encontrado en la configuración."
     
     def get_prompt_description(self, prompt_name: str) -> str:
         """

@@ -1,3 +1,8 @@
+/*
+ * PFA Simulator Web - Configuración Global
+ * Copyright (c) 2025 Rodrigo A. Figueroa.
+ * Obra protegida. Prohibida redistribución o uso comercial sin autorización.
+ */
 // Configuración de la aplicación PFA Simulator
 window.PFA_CONFIG = {
     // Configuración de OpenAI
