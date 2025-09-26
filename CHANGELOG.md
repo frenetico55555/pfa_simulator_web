@@ -2,6 +2,18 @@
 
 Todas las notas de cambios relevantes del proyecto. Sigue el formato Keep a Changelog y versionado semántico (SemVer) cuando sea posible.
 
+## [Unreleased]
+
+### 🔒 Protección de Código / Distribución
+
+- Añadida versión minificada/ligeramente ofuscada `script.min.js` y cargador condicional en la aplicación principal.
+- Parámetro `?dev=1` fuerza uso de `script.js` legible para depuración local.
+
+### 🧪 Próximos (propuestos)
+
+- Integrar tarea automatizada de minificación en workflow CI.
+- Map de sourcemap privado opcional (no distribuido en Pages) para debugging avanzado.
+
 ## [v1.0.0] - 2025-09-26
 
 ### 🎯 Enfoque

@@ -586,6 +586,7 @@
                             <!-- Scripts -->
                         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
                         <script src="codigo-interno/config.js"></script>
-                        <script src="codigo-interno/script.js"></script>
+                        <!-- Cargador condicional: usa versión minificada en producción, original si ?dev=1 -->
+                        <script>(function(){const useDev=/[?&]dev=1/.test(location.search);const s=document.createElement('script');s.src=useDev?'codigo-interno/script.js':'codigo-interno/script.min.js';s.defer=true;document.currentScript.parentNode.appendChild(s);})();</script>
 </body>
 </html>
