@@ -1,5 +1,7 @@
 # 🚀 **Sistema de Gestión de Prompts - PFA Simulator**
 
+> Aviso Legal: Este sistema de prompts forma parte de una obra propietaria (© 2025 Rodrigo A. Figueroa y colaboradores). Uso educativo restringido. Prohibida la redistribución, extracción masiva o creación de derivados sin autorización escrita. Ver LICENSE / TERMS_OF_USE.md.
+
 ## 📋 **Descripción General**
 
 Este sistema permite **editar fácilmente los prompts** de la aplicación sin necesidad de conocimientos de programación. Los prompts son las instrucciones que se envían a la inteligencia artificial (OpenAI) para controlar cómo se comporta durante la simulación.
@@ -15,6 +17,7 @@ Este sistema permite **editar fácilmente los prompts** de la aplicación sin ne
 ## 📁 **Archivos del Sistema**
 
 ### **Archivos Principales:**
+
 - `prompts.json` - **Archivo principal** con todos los prompts
 - `prompt_manager.py` - **Módulo Python** para usar los prompts
 - `INSTRUCCIONES_EDITAR_PROMPTS.md` - **Guía detallada** de edición
@@ -23,6 +26,7 @@ Este sistema permite **editar fácilmente los prompts** de la aplicación sin ne
 ## 🔧 **¿Cómo Funciona?**
 
 ### **1. Estructura del Archivo prompts.json**
+
 ```json
 {
   "nombre_del_prompt": {
@@ -33,7 +37,9 @@ Este sistema permite **editar fácilmente los prompts** de la aplicación sin ne
 ```
 
 ### **2. Variables Disponibles**
+
 Los prompts pueden usar variables que se reemplazan automáticamente:
+
 - `{age}` → Edad del paciente
 - `{gender}` → Género del paciente
 - `{trauma_type}` → Tipo de trauma
@@ -42,12 +48,14 @@ Los prompts pueden usar variables que se reemplazan automáticamente:
 ## 🌐 **Uso en la Versión Web**
 
 ### **Configuración Automática:**
+
 1. Coloca `prompts.json` en la misma carpeta que `index.html`
 2. La aplicación web cargará automáticamente los prompts
 3. Los cambios se aplican al recargar la página
 
 ### **Archivos Necesarios:**
-```
+
+```text
 📁 PFA Simulator Web/
 ├── 📄 index.html
 ├── 🎨 styles.css
@@ -60,11 +68,13 @@ Los prompts pueden usar variables que se reemplazan automáticamente:
 ## 🐍 **Uso en la Versión Python**
 
 ### **Instalación:**
+
 1. Coloca `prompt_manager.py` en la misma carpeta que tu aplicación Python
 2. Coloca `prompts.json` en la misma carpeta
 3. Importa y usa el módulo
 
 ### **Ejemplo de Uso:**
+
 ```python
 from prompt_manager import PromptManager
 
@@ -86,6 +96,7 @@ prompt_manager.reload_prompts()
 ```
 
 ### **Métodos Disponibles:**
+
 - `get_screenwriter_prompt(**kwargs)` - Prompt del guionista
 - `get_triage_prompt(**kwargs)` - Prompt de triage
 - `get_survivor_prompt(**kwargs)` - Prompt del sobreviviente
@@ -97,47 +108,50 @@ prompt_manager.reload_prompts()
 ## ✏️ **¿Cómo Editar los Prompts?**
 
 ### **Paso 1: Abrir el Archivo**
+
 - Abre `prompts.json` con cualquier editor de texto
 - **NO uses Word** (puede cambiar el formato)
 
 ### **Paso 2: Encontrar el Prompt**
+
 - Busca la sección que quieres modificar
 - Por ejemplo: `"screenwriter_prompt"`
 
 ### **Paso 3: Editar el Contenido**
+
 - Cambia solo el texto dentro de las comillas `"content"`
 - **NO cambies** la estructura JSON
 
 ### **Paso 4: Guardar y Probar**
+
 - Guarda el archivo
 - Recarga la aplicación (web) o usa `reload_prompts()` (Python)
 
 ## 🎭 **Tipos de Prompts Disponibles**
 
 ### **1. Guionista (`screenwriter_prompt`)**
-- **Función**: Crea la historia del trauma
-- **Cuándo se usa**: Al inicio de la simulación
-- **Variables**: Todas las características del paciente
+**Función**: Crea la historia del trauma  
+**Cuándo se usa**: Al inicio de la simulación  
+**Variables**: Todas las características del paciente
 
 ### **2. Enfermera de Triage (`triage_prompt`)**
-- **Función**: Presenta el caso al proveedor
-- **Cuándo se usa**: Después de crear la historia
-- **Variables**: Contexto del caso
+**Función**: Presenta el caso al proveedor  
+**Cuándo se usa**: Luego del guión inicial  
+**Variables**: Contexto sintetizado del caso
 
 ### **3. Sobreviviente (`survivor_prompt`)**
-- **Función**: Actúa como el paciente
-- **Cuándo se usa**: Durante toda la simulación
-- **Variables**: Perfil del paciente
+**Función**: Actúa como el paciente  
+**Cuándo se usa**: Durante toda la simulación  
+**Variables**: Perfil del paciente
 
 ### **4. Feedback del Paciente (`patient_feedback_prompt`)**
-- **Función**: Evalúa desde la perspectiva del paciente
-- **Cuándo se usa**: Al final de la simulación
-- **Variables**: Conversación y características
+**Función**: Evalúa desde la perspectiva del paciente  
+**Cuándo se usa**: Al finalizar la conversación
 
 ### **5. Evaluación Técnica (`technical_feedback_prompt`)**
-- **Función**: Evalúa el protocolo ABCDE
-- **Cuándo se usa**: Al final de la simulación
-- **Variables**: Conversación y manual técnico
+**Función**: Evalúa el protocolo ABCDE  
+**Cuándo se usa**: Tras el feedback del paciente  
+**Variables**: Conversación y manual técnico
 
 ## 🔍 **Validación y Errores**
 

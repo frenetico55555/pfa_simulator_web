@@ -2,6 +2,10 @@
 """
 Servidor Simple para Editor de Prompts - PFA Simulator
 
+Obra Propietaria © 2025 Rodrigo A. Figueroa. Uso educativo restringido.
+Prohibida redistribución o creación de derivados sin autorización escrita.
+Ver LICENSE y TERMS_OF_USE.md.
+
 Este servidor permite guardar automáticamente los prompts editados
 en el archivo prompts.json sin necesidad de conocimientos técnicos.
 

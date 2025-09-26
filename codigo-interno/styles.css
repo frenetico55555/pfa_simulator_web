@@ -1,3 +1,9 @@
+/*
+ * PFA Simulator Web - Hoja de Estilos
+ * Copyright (c) 2025 Rodrigo A. Figueroa.
+ * Uso educativo restringido. Prohibida redistribución / derivaciones sin autorización.
+ * Ver LICENSE y TERMS_OF_USE.md
+ */
 /* ===== ESTILOS PRINCIPALES DEL PFA SIMULATOR ===== */
 
 /* Reset y configuración base */
@@ -100,6 +106,7 @@ body {
     border-radius: 5px;
     background: #e9ecef;
     outline: none;
+    appearance: none;
     -webkit-appearance: none;
 }
 
