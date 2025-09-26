@@ -1,0 +1,27 @@
+title = "PFA Simulator Web - Gitleaks Config"
+
+# Extend built-in rules, allow custom ignores
+[allowlist]
+  description = "Allowlisted patterns"
+  commits = []
+  files = [
+    # Generated or docs where example keys could appear
+    "CHANGELOG.md",
+    "README.md",
+    "codigo-interno/README_PROMPTS.md"
+  ]
+  regexes = [
+    '''(?i)example[_-]?api[_-]?key'''
+  ]
+
+# (Optional) Add a simple custom rule to catch sk- style keys more strictly
+[[rules]]
+  id = "openai_api_key_format"
+  description = "Potential OpenAI API key"
+  regex = '''sk-[A-Za-z0-9]{20,}'''
+  tags = ["key", "openai", "security"]
+  [rules.allowlist]
+    description = "Ignore intentionally masked"
+    regexes = [
+      '''sk-XXXX'''
+    ]

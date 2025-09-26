@@ -33,6 +33,7 @@ codigo-interno/           # Lógica, estilos, prompts y utilidades
 
 - Se eliminó la API key embebida. Cada usuario debe ingresar la suya.
 - Recomendado: implementar un backend proxy para proteger la clave.
+- Escaneo automático de secretos: workflow `secret-scan` con Gitleaks (push, PR y semanal).
 
 ## Edición de Prompts
 
