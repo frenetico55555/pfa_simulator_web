@@ -130,25 +130,30 @@ prompt_manager.reload_prompts()
 ## 🎭 **Tipos de Prompts Disponibles**
 
 ### **1. Guionista (`screenwriter_prompt`)**
+
 **Función**: Crea la historia del trauma  
 **Cuándo se usa**: Al inicio de la simulación  
 **Variables**: Todas las características del paciente
 
 ### **2. Enfermera de Triage (`triage_prompt`)**
+
 **Función**: Presenta el caso al proveedor  
 **Cuándo se usa**: Luego del guión inicial  
 **Variables**: Contexto sintetizado del caso
 
 ### **3. Sobreviviente (`survivor_prompt`)**
+
 **Función**: Actúa como el paciente  
 **Cuándo se usa**: Durante toda la simulación  
 **Variables**: Perfil del paciente
 
 ### **4. Feedback del Paciente (`patient_feedback_prompt`)**
+
 **Función**: Evalúa desde la perspectiva del paciente  
 **Cuándo se usa**: Al finalizar la conversación
 
 ### **5. Evaluación Técnica (`technical_feedback_prompt`)**
+
 **Función**: Evalúa el protocolo ABCDE  
 **Cuándo se usa**: Tras el feedback del paciente  
 **Variables**: Conversación y manual técnico
@@ -156,6 +161,7 @@ prompt_manager.reload_prompts()
 ## 🔍 **Validación y Errores**
 
 ### **Validar Archivo:**
+
 ```python
 # En Python
 is_valid = prompt_manager.validate_prompts_file()
@@ -165,6 +171,7 @@ python prompt_manager.py
 ```
 
 ### **Errores Comunes:**
+
 - **"Invalid JSON"**: Estructura del archivo rota
 - **"File not found"**: Archivo no está en la carpeta correcta
 - **Prompt no funciona**: Revisa la sintaxis y variables
@@ -172,16 +179,19 @@ python prompt_manager.py
 ## 💡 **Consejos de Edición**
 
 ### **1. Haz Cambios Pequeños**
+
 - Modifica una cosa a la vez
 - Prueba después de cada cambio
 - Haz respaldo del archivo original
 
 ### **2. Mantén el Formato**
+
 - Preserva las comillas y llaves
 - Usa `\n` para saltos de línea
 - Escapa comillas internas con `\"`
 
 ### **3. Prueba tus Cambios**
+
 - Verifica que la aplicación funcione
 - Revisa que los prompts se comporten como esperabas
 - Ajusta si es necesario
@@ -189,16 +199,19 @@ python prompt_manager.py
 ## 🚨 **Solución de Problemas**
 
 ### **La aplicación no carga los prompts:**
+
 1. Verifica que `prompts.json` esté en la carpeta correcta
 2. Revisa que el archivo tenga extensión `.json`
 3. Valida la estructura JSON del archivo
 
 ### **Los prompts no funcionan como esperabas:**
+
 1. Revisa que no hayas roto la estructura
 2. Verifica que las variables estén correctas
 3. Simplifica el prompt si es muy complejo
 
 ### **Error de sintaxis JSON:**
+
 1. Usa un validador JSON online
 2. Revisa que todas las comas y llaves estén en su lugar
 3. Asegúrate de que no haya comillas sin cerrar
@@ -213,12 +226,14 @@ python prompt_manager.py
 ## 🆘 **¿Necesitas Ayuda?**
 
 ### **Pasos para Solucionar Problemas:**
+
 1. **Revisa la estructura**: Asegúrate de no haber roto el JSON
 2. **Haz cambios pequeños**: No cambies todo de una vez
 3. **Prueba después de cada cambio**: Para identificar el problema
 4. **Vuelve al original**: Si algo no funciona, restaura el archivo
 
 ### **Recursos de Ayuda:**
+
 - Validador JSON online
 - Editor de texto con resaltado de sintaxis
 - Documentación de la aplicación
@@ -228,7 +243,7 @@ python prompt_manager.py
 
 ## 🎉 **¡Felicidades!**
 
-Ahora tienes un sistema completo para personalizar los prompts de tu aplicación PFA Simulator sin necesidad de conocimientos de programación. 
+Ahora tienes un sistema completo para personalizar los prompts de tu aplicación PFA Simulator sin necesidad de conocimientos de programación.
 
 **Recuerda**: Los prompts son como "recetas" para la IA. Cuanto más claros y específicos sean, mejor funcionará la simulación.
 

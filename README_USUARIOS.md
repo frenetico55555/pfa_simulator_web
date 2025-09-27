@@ -3,12 +3,15 @@
 ## 📁 **¿Qué Archivos Necesito?**
 
 ### **🎯 Para Usar la Aplicación:**
+
 - **`2. PFA - página Web.html`** ← **Haz doble clic aquí para usar el simulador**
 
 ### **✏️ Para Editar Prompts:**
+
 - **`1. Editor de Prompts.html`** ← **Haz doble clic aquí para editar prompts**
 
 ### **🏠 Para Navegar:**
+
 - **`INDEX.html`** ← **Página principal con enlaces a todo**
 
 ---
@@ -16,10 +19,12 @@
 ## 🚀 **¿Cómo Empezar?**
 
 ### **Opción 1: Usar el Simulador**
+
 1. Haz doble clic en **`2. PFA - página Web.html`**
 2. ¡Listo! Ya puedes usar la aplicación
 
 ### **Opción 2: Editar Prompts**
+
 1. Haz doble clic en **`1. Editor de Prompts.html`**
 2. Sigue las instrucciones en pantalla
 
@@ -28,6 +33,7 @@
 ## 📚 **¿Dónde Está la Documentación?**
 
 ### **📁 Carpeta: `codigo-interno`**
+
 - **README.md** - Manual técnico completo
 - **INSTRUCCIONES_EDITOR_VISUAL.md** - Instrucciones del editor
 - **RESUMEN_EDITOR_VISUAL.md** - Guía rápida del editor
@@ -39,12 +45,14 @@
 ## ⚠️ **IMPORTANTE - NO EDITAR:**
 
 ### **❌ NO toques estos archivos:**
+
 - `codigo-interno/styles.css`
 - `codigo-interno/script.js`
 - `codigo-interno/config.js`
 - `codigo-interno/server_prompts.py`
 
 ### **✅ SÍ puedes editar:**
+
 - Los prompts usando **`1. Editor de Prompts.html`**
 - La configuración desde la aplicación web
 
@@ -61,6 +69,7 @@
 ## 🎉 **¡Eso es todo!**
 
 **Recuerda:**
+
 - 🎮 **Para usar**: `2. PFA - página Web.html`
 - ✏️ **Para editar**: `1. Editor de Prompts.html`
 - 📚 **Para documentación**: carpeta `codigo-interno`
