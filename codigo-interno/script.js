@@ -1170,6 +1170,120 @@ class PFASimulator {
     }
 }
 
+// Función para configuración automática de simulación aleatoria
+function configureRandomSimulation() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const isAutostart = urlParams.get('autostart') === 'true';
+    const isRandom = urlParams.get('random') === 'true';
+    const mode = urlParams.get('mode');
+    
+    if (isAutostart && isRandom && mode === 'student') {
+        console.log('🎯 Configurando simulación aleatoria para alumno...');
+        
+        // Configurar valores aleatorios en todos los campos
+        const randomConfigs = {
+            // Selects con opciones aleatorias
+            'traumaType': ['Agresión Sexual', 'Ataque Físico', 'Conflicto Armado', 'Terrorismo', 'Desastre Natural', 'Accidente de Tránsito', 'Accidente Doméstico', 'Condición médica repentina', 'Noticias traumáticas repentinas', 'Incendio'],
+            'traumaSetting': ['Casa', 'Escuela', 'Zona de combate', 'Lugar de trabajo', 'Calle', 'Naturaleza', 'Lugar público'],
+            'age': ['Joven Adulto', 'Niño', 'Adolescente', 'Adulto', 'Anciano'],
+            'gender': ['Femenino', 'Masculino', 'No especificado'],
+            'challenges': ['Pérdida de contacto con la realidad', 'Agresión auto/hetero-dirigida', 'Ausencia de respuesta a estímulos', 'Tratamiento de salud mental actual o previo', 'Síntomas invalidantes que no ceden'],
+            'education': ['Básico', 'Secundaria', 'Técnico', 'Profesional', 'Postgrado'],
+            'civilStatus': ['Soltero', 'En una relación', 'Casado', 'Divorciado', 'Viudo'],
+            'network': ['Sin familia ni red social', 'Red social/familiar restringida', 'Red social y lazos fuertes'],
+            'medicalConditions': ['Sí', 'No'],
+            'psychiatricConditions': ['Sí', 'No'],
+            'medications': ['Sí', 'No']
+        };
+        
+        // Función para seleccionar valor aleatorio
+        function getRandomValue(array) {
+            return array[Math.floor(Math.random() * array.length)];
+        }
+        
+        // Función para configurar elemento
+        function setElementValue(id, value) {
+            const element = document.getElementById(id);
+            if (element) {
+                element.value = value;
+                console.log(`✓ ${id}: ${value}`);
+            }
+        }
+        
+        // Esperar a que el DOM esté listo y configurar
+        function applyRandomConfiguration() {
+            // Configurar dificultad aleatoria (30-80%)
+            const randomDifficulty = Math.floor(Math.random() * 51) + 30; // 30-80
+            setElementValue('difficultySlider', randomDifficulty);
+            const difficultyDisplay = document.getElementById('difficultyValue');
+            if (difficultyDisplay) {
+                difficultyDisplay.textContent = randomDifficulty + '%';
+            }
+            
+            // Configurar todos los selects con valores aleatorios
+            Object.keys(randomConfigs).forEach(fieldId => {
+                const randomValue = getRandomValue(randomConfigs[fieldId]);
+                setElementValue(fieldId, randomValue);
+            });
+            
+            // Activar simulación aleatoria checkbox
+            const randomSimCheck = document.getElementById('randomSimulation');
+            if (randomSimCheck) {
+                randomSimCheck.checked = true;
+                console.log('✓ Simulación aleatoria activada');
+            }
+            
+            // Configurar personalidad aleatoria
+            const personalitySliders = document.querySelectorAll('.personality-slider');
+            personalitySliders.forEach(slider => {
+                const randomValue = Math.floor(Math.random() * 11) * 10; // 0, 10, 20... 100
+                slider.value = randomValue;
+                const valueDisplay = slider.parentNode.querySelector('.slider-value');
+                if (valueDisplay) {
+                    valueDisplay.textContent = randomValue + '%';
+                }
+            });
+            
+            // Configurar checkboxes aleatorios para "Vive con" y "Hobbies"
+            ['livesWithOptions', 'hobbiesOptions'].forEach(containerId => {
+                const container = document.getElementById(containerId);
+                if (container) {
+                    const checkboxes = container.querySelectorAll('input[type="checkbox"]:not([value="Aleatorio"])');
+                    // Seleccionar 1-3 opciones aleatorias
+                    const numSelections = Math.floor(Math.random() * 3) + 1;
+                    const shuffled = Array.from(checkboxes).sort(() => 0.5 - Math.random());
+                    shuffled.slice(0, numSelections).forEach(cb => cb.checked = true);
+                }
+            });
+            
+            // Nombre aleatorio para el proveedor
+            const randomNames = ['Dr. García', 'Dra. Rodríguez', 'Dr. Martínez', 'Dra. López', 'Dr. González', 'Dra. Pérez', 'Dr. Sánchez', 'Dra. Ramírez', 'Dr. Torres', 'Dra. Flores'];
+            const randomName = getRandomValue(randomNames);
+            setElementValue('providerName', randomName);
+            
+            console.log('🎯 Configuración aleatoria completada');
+            
+            // Auto-iniciar simulación después de un breve delay
+            setTimeout(() => {
+                const startBtn = document.getElementById('startSimulationBtn');
+                if (startBtn && window.pfaSimulator) {
+                    console.log('🚀 Iniciando simulación automáticamente...');
+                    window.pfaSimulator.startSimulation();
+                }
+            }, 1500); // 1.5 segundos para que el usuario vea la configuración
+        }
+        
+        // Ejecutar cuando esté todo listo
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => {
+                setTimeout(applyRandomConfiguration, 500); // Delay para asegurar que todo esté renderizado
+            });
+        } else {
+            setTimeout(applyRandomConfiguration, 500);
+        }
+    }
+}
+
 // Inicialización robusta que funciona aunque el script se inyecte después de que el DOM haya cargado.
 (function initPFASimulatorSafely(){
     if (window.pfaSimulator) { return; }
@@ -1180,6 +1294,8 @@ class PFASimulator {
                 if (window.PFA_BOOT_LOG) {
                     window.PFA_BOOT_LOG.push('[init] PFASimulator instanciado OK (script.js)');
                 }
+                // Configurar simulación aleatoria si es necesario
+                configureRandomSimulation();
             }
         } catch (err) {
             console.error('Error inicializando PFASimulator:', err);
