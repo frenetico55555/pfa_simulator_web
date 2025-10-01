@@ -2,6 +2,20 @@
 
 Simulador de Primeros Auxilios Psicológicos (PFA) para entrenamiento educativo. Permite generar casos clínicos simulados, interactuar con un "sobreviviente" controlado por IA (OpenAI) y obtener evaluación automática basada en protocolo ABCDE y criterios PAREN.
 
+## 🚀 Novedades v1.1.0
+
+### 🎯 Hub de Desarrollo Multi-Perfil
+- **Entrada unificada** en `app.html` con tres perfiles de usuario
+- **Admin**: Gestión completa y editor de prompts
+- **Instructor**: Configuración de simulaciones y casos
+- **Alumno**: Práctica interactiva y evaluación
+
+### 🐛 Sistema de Feedback Universal
+- **Widget integrado** en todas las páginas para reportes instantáneos
+- **Configuración híbrida**: Bugs→GitHub Issues, Sugerencias→Email
+- **Contexto automático**: Captura técnica para debugging eficiente
+- **Templates estructurados** para reportes organizados
+
 ## Características
 
 - Generación dinámica de caso (historia + triage)
@@ -11,23 +25,51 @@ Simulador de Primeros Auxilios Psicológicos (PFA) para entrenamiento educativo.
 - Gráficos radar (Chart.js)
 - Exportación de conversación
 - Editor visual de prompts (`1. Editor de Prompts.html`)
+- **Sistema de feedback integrado** para desarrollo ágil
 
 ## Estructura
 
 ```text
+app.html                  # 🌟 Hub de desarrollo multi-perfil (NUEVO)
 INDEX.html                # Índice / portal
 2. PFA - página Web.html  # Aplicación principal
 1. Editor de Prompts.html # Editor visual de prompts
 codigo-interno/           # Lógica, estilos, prompts y utilidades
+├── feedback-widget.js    # 🐛 Widget de feedback universal (NUEVO)
+├── FEEDBACK_SYSTEM.md    # 📋 Documentación del sistema (NUEVO)
+└── ...
+.github/ISSUE_TEMPLATE/   # 📝 Templates para reportes (NUEVO)
+├── bug_report.yml
+├── feature_request.yml
+├── urgent_issue.yml
+└── config.yml
 ```
 
 ## Uso Rápido
 
+### 🎯 Para Desarrollo/Testing
+1. **Accede al Hub**: [app.html](https://frenetico55555.github.io/pfa_simulator_web/app.html)
+2. **Selecciona tu perfil**: Admin, Instructor, o Alumno
+3. **Usa el feedback**: Botón "🐛 Reportar Issue" siempre disponible
+
+### 📚 Para Uso Educativo
 1. Clonar repositorio.
 2. Abrir `INDEX.html` o directamente `2. PFA - página Web.html` en el navegador.
 3. Ingresar tu propia API Key de OpenAI (no se guarda).
 4. Configurar parámetros y comenzar la simulación.
-5. (Opcional) Usar la versión publicada en GitHub Pages cuando el workflow se ejecute: `https://frenetico55555.github.io/pfa_simulator_web/`
+5. (Opcional) Usar la versión publicada en GitHub Pages: `https://frenetico55555.github.io/pfa_simulator_web/`
+
+## 🐛 Sistema de Feedback
+
+### Para Reportar Issues
+- **Widget integrado**: Botón flotante en todas las páginas
+- **GitHub Issues**: [Crear reporte estructurado](https://github.com/frenetico55555/pfa_simulator_web/issues/new/choose)
+- **Email directo**: rfiguerc@uc.cl para sugerencias
+
+### Tipos de Reporte
+- 🐛 **Bugs**: Automáticamente a GitHub Issues
+- 💡 **Sugerencias**: Email directo al desarrollador
+- ⚡ **Urgente**: Ambos canales simultáneamente
 
 ## Seguridad
 
