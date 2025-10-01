@@ -1,0 +1,102 @@
+name: 💡 Sugerencia de Mejora
+description: Proponer una nueva funcionalidad o mejora
+title: "[ENHANCEMENT] "
+labels: ["enhancement", "needs-review"]
+assignees:
+  - frenetico55555
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ¡Gracias por tu sugerencia! Nos ayuda a mejorar continuamente el sistema.
+        
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Prioridad
+      description: ¿Qué tan importante consideras esta mejora?
+      options:
+        - Alta (funcionalidad crítica faltante)
+        - Media (mejoraría significativamente la experiencia)
+        - Baja (nice to have)
+    validations:
+      required: true
+      
+  - type: dropdown
+    id: category
+    attributes:
+      label: Categoría
+      description: ¿Qué tipo de mejora es?
+      options:
+        - Funcionalidad nueva
+        - Mejora de UX/UI
+        - Optimización de rendimiento
+        - Documentación
+        - Accesibilidad
+        - Otro
+    validations:
+      required: true
+      
+  - type: textarea
+    id: description
+    attributes:
+      label: Descripción de la Sugerencia
+      description: Describe claramente tu propuesta
+      placeholder: "Me gustaría que el sistema..."
+    validations:
+      required: true
+      
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problema que Resuelve
+      description: ¿Qué problema o necesidad aborda esta sugerencia?
+      placeholder: "Actualmente es difícil/imposible..."
+    validations:
+      required: true
+      
+  - type: textarea
+    id: solution
+    attributes:
+      label: Solución Propuesta
+      description: ¿Cómo visualizas que funcionaría?
+      placeholder: "La funcionalidad podría trabajar así..."
+    validations:
+      required: true
+      
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternativas Consideradas
+      description: ¿Has pensado en otras formas de resolver esto?
+      placeholder: "Otras opciones podrían ser..."
+      
+  - type: textarea
+    id: impact
+    attributes:
+      label: Impacto Esperado
+      description: ¿Cómo beneficiaría esto a los usuarios?
+      placeholder: "Esto ayudaría a..."
+    validations:
+      required: true
+      
+  - type: checkboxes
+    id: user_types
+    attributes:
+      label: Usuarios Beneficiados
+      description: ¿Qué tipos de usuario se beneficiarían?
+      options:
+        - label: Administradores del sistema
+        - label: Instructores
+        - label: Alumnos/estudiantes
+        - label: Desarrolladores
+        
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Verificación
+      options:
+        - label: He buscado en issues existentes y esta sugerencia no está duplicada
+          required: true
+        - label: Esta sugerencia está alineada con los objetivos del proyecto
+          required: true

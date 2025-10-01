@@ -1,0 +1,102 @@
+name: 🐛 Reporte de Bug
+description: Reportar un error o comportamiento inesperado
+title: "[BUG] "
+labels: ["bug", "needs-triage"]
+assignees:
+  - frenetico55555
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Gracias por reportar este bug. Esta información nos ayuda a mejorar el sistema.
+        
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severidad
+      description: ¿Qué tan grave es este problema?
+      options:
+        - Crítico (sistema no funciona)
+        - Alto (funcionalidad principal afectada)
+        - Medio (funcionalidad secundaria afectada)
+        - Bajo (problema cosmético o menor)
+    validations:
+      required: true
+      
+  - type: dropdown
+    id: component
+    attributes:
+      label: Componente Afectado
+      description: ¿Qué parte del sistema está afectada?
+      options:
+        - Simulador Principal (2. PFA - página Web.html)
+        - Editor de Prompts (1. Editor de Prompts.html)
+        - Hub de Desarrollo (app.html)
+        - Sistema de Feedback
+        - Inicialización/Loader
+        - Otro
+    validations:
+      required: true
+      
+  - type: textarea
+    id: description
+    attributes:
+      label: Descripción del Bug
+      description: Describe claramente el problema
+      placeholder: "Ejemplo: Al hacer clic en 'Iniciar Simulación', la página se queda en blanco..."
+    validations:
+      required: true
+      
+  - type: textarea
+    id: steps
+    attributes:
+      label: Pasos para Reproducir
+      description: ¿Cómo podemos reproducir este problema?
+      placeholder: |
+        1. Ir a...
+        2. Hacer clic en...
+        3. Escribir...
+        4. Ver error
+    validations:
+      required: true
+      
+  - type: textarea
+    id: expected
+    attributes:
+      label: Comportamiento Esperado
+      description: ¿Qué esperabas que pasara?
+      placeholder: "Esperaba que..."
+    validations:
+      required: true
+      
+  - type: textarea
+    id: actual
+    attributes:
+      label: Comportamiento Actual
+      description: ¿Qué está pasando realmente?
+      placeholder: "En su lugar, ocurre..."
+    validations:
+      required: true
+      
+  - type: textarea
+    id: context
+    attributes:
+      label: Contexto Técnico
+      description: Información técnica (se auto-completa si usas el widget de feedback)
+      placeholder: |
+        - URL: 
+        - Navegador: 
+        - Sistema: 
+        - Modo: 
+        - Errores de consola:
+      
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Verificación
+      description: Confirma que has verificado lo siguiente
+      options:
+        - label: He buscado en issues existentes y este no está duplicado
+          required: true
+        - label: He proporcionado suficiente información para reproducir el problema
+          required: true

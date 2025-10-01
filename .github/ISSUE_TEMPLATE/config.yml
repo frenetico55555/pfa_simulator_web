@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 📧 Contacto Directo
+    url: mailto:rfiguerc@uc.cl
+    about: Para consultas directas o feedback confidencial
+  - name: 📚 Documentación
+    url: https://github.com/frenetico55555/pfa_simulator_web/blob/main/README.md
+    about: Consulta la documentación del proyecto
+  - name: 🚀 Hub de Desarrollo
+    url: https://frenetico55555.github.io/pfa_simulator_web/app.html
+    about: Accede al sistema de desarrollo con widget de feedback integrado

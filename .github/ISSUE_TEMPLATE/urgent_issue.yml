@@ -1,0 +1,90 @@
+name: ⚡ Issue Urgente
+description: Reportar un problema que requiere atención inmediata
+title: "[URGENT] "
+labels: ["urgent", "needs-immediate-attention"]
+assignees:
+  - frenetico55555
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ⚠️ **ATENCIÓN**: Este template es para issues que requieren atención inmediata.
+        Para problemas no urgentes, usa los otros templates.
+        
+  - type: dropdown
+    id: urgency_reason
+    attributes:
+      label: Razón de Urgencia
+      description: ¿Por qué este issue es urgente?
+      options:
+        - Sistema completamente inaccesible
+        - Pérdida de datos
+        - Problema de seguridad
+        - Funcionalidad crítica no funciona
+        - Impacto en producción/demo
+        - Deadline crítico
+    validations:
+      required: true
+      
+  - type: textarea
+    id: issue_description
+    attributes:
+      label: Descripción del Problema
+      description: Describe el problema de manera clara y concisa
+      placeholder: "El problema es..."
+    validations:
+      required: true
+      
+  - type: textarea
+    id: immediate_impact
+    attributes:
+      label: Impacto Inmediato
+      description: ¿Qué está siendo afectado ahora mismo?
+      placeholder: "Esto está causando..."
+    validations:
+      required: true
+      
+  - type: textarea
+    id: attempted_solutions
+    attributes:
+      label: Soluciones Intentadas
+      description: ¿Qué has intentado para resolver el problema?
+      placeholder: "He intentado..."
+      
+  - type: textarea
+    id: workaround
+    attributes:
+      label: Workaround Temporal
+      description: ¿Hay alguna forma temporal de sortear el problema?
+      placeholder: "Como solución temporal..."
+      
+  - type: input
+    id: contact
+    attributes:
+      label: Contacto Directo
+      description: Email o teléfono para contacto inmediato
+      placeholder: "email@ejemplo.com o +56..."
+    validations:
+      required: true
+      
+  - type: textarea
+    id: technical_context
+    attributes:
+      label: Contexto Técnico
+      description: Información técnica relevante
+      placeholder: |
+        - URL afectada:
+        - Navegador:
+        - Hora del incidente:
+        - Errores de consola:
+        - Logs relevantes:
+      
+  - type: checkboxes
+    id: verification
+    attributes:
+      label: Verificación de Urgencia
+      options:
+        - label: He confirmado que este problema no puede esperar al próximo ciclo de desarrollo
+          required: true
+        - label: He proporcionado información de contacto para seguimiento inmediato
+          required: true
