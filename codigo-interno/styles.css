@@ -439,6 +439,8 @@ body {
     min-height: 60px;
     resize: vertical;
     font-family: inherit;
+    font-size: 1.05rem;
+    line-height: 1.5;
 }
 
 .input-group .btn {
