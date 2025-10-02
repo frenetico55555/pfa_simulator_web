@@ -788,18 +788,24 @@ class PFASimulator {
         return values;
     }
 
-    // Mostrar indicador de carga
+    // Mostrar indicador de carga (accesible)
     showLoading(text) {
         const txt = this.q('#loadingText');
         if (txt) txt.textContent = text;
         const ind = this.q('#loadingIndicator');
-        if (ind) ind.classList.remove('hidden');
+        if (ind) {
+            ind.classList.remove('hidden');
+            ind.setAttribute('aria-hidden','false');
+        }
     }
 
-    // Ocultar indicador de carga
+    // Ocultar indicador de carga (accesible)
     hideLoading() {
         const ind = this.q('#loadingIndicator');
-        if (ind) ind.classList.add('hidden');
+        if (ind) {
+            ind.classList.add('hidden');
+            ind.setAttribute('aria-hidden','true');
+        }
     }
 
     updateLoadingText(text) {

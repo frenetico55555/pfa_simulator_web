@@ -629,9 +629,9 @@
     </div>
 
     <!-- Indicador de carga -->
-    <div id="loadingIndicator" class="loading-overlay hidden">
-        <div class="loading-spinner"></div>
-        <p id="loadingText">Esperando que la enfermera de triage le asigne un caso...</p>
+    <div id="loadingIndicator" class="loading-overlay hidden" aria-hidden="true">
+        <div class="loading-spinner" aria-label="Cargando"></div>
+        <p id="loadingText" role="status" aria-live="polite" aria-atomic="true">Esperando que la enfermera de triage le asigne un caso...</p>
     </div>
 
                         <!-- Scripts -->
