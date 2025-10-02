@@ -117,6 +117,23 @@ body {
 .mb-2 { margin-bottom: var(--space-3); }
 .mt-2 { margin-top: var(--space-3); }
 
+/* === Banner Legal === */
+#legalBanner { position:fixed; bottom:0; left:0; right:0; z-index:3000; display:flex; gap:12px; align-items:center; justify-content:center; padding:6px 12px; background:rgba(0,0,0,0.72); backdrop-filter:blur(6px); color:#fff; font-size:12px; font-family:var(--font-base); line-height:1.3; box-shadow:0 -2px 6px rgba(0,0,0,0.4);} 
+#legalBanner a { color:#4ea8ff; text-decoration:none; font-weight:500; }
+#legalBanner span.bold { font-weight:600; }
+#legalBanner span.subtle { opacity:0.85; }
+#closeLegalBanner { background:transparent; border:1px solid rgba(255,255,255,0.4); color:#fff; padding:2px 8px; border-radius:4px; cursor:pointer; font-size:11px; }
+#pfaRestoreBannerBtn { position:fixed; bottom:6px; left:6px; z-index:3001; background:#1f2937; color:#fff; border:1px solid #475569; padding:4px 8px; font-size:11px; border-radius:4px; cursor:pointer; opacity:.75; }
+#pfaRestoreBannerBtn:hover { opacity:1; }
+
+/* === Bloque API Key / Demo === */
+.api-key-block { display:flex; flex-direction:column; gap:6px; font-weight:600; }
+.api-key-row { display:flex; flex-wrap:wrap; gap:8px; align-items:center; }
+.api-key-row input[type=password] { flex:1; min-width:260px; padding:6px 10px; }
+.demo-toggle { display:inline-flex; align-items:center; gap:4px; font-weight:500; background:#f1f5f9; padding:4px 8px; border-radius:6px; cursor:pointer; font-size:13px; }
+.api-hint { color:#555; font-weight:400; }
+.api-note { color:#777; font-size:11px; font-weight:400; }
+
 
 /* ===== MODALES ===== */
 .modal {

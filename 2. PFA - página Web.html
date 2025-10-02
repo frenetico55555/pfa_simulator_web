@@ -35,12 +35,12 @@
 </head>
 <body>
     <!-- Banner Legal / Propiedad Intelectual -->
-    <div id="legalBanner" style="position:fixed;bottom:0;left:0;right:0;z-index:3000;display:flex;gap:12px;align-items:center;justify-content:center;padding:6px 12px;background:rgba(0,0,0,0.72);backdrop-filter:blur(6px);color:#fff;font-size:12px;font-family:system-ui,'Segoe UI',Arial,sans-serif;line-height:1.3;box-shadow:0 -2px 6px rgba(0,0,0,0.4);">
-        <span style="font-weight:600;">PFA Simulator Web © 2025</span>
-        <span style="opacity:0.85;">Uso estrictamente educativo. Obra protegida. Prohibida redistribución o derivaciones sin autorización.</span>
-        <a href="LICENSE" target="_blank" style="color:#4ea8ff;text-decoration:none;font-weight:500;">Licencia</a>
-        <a href="TERMS_OF_USE.md" target="_blank" style="color:#4ea8ff;text-decoration:none;font-weight:500;">Términos</a>
-        <button id="closeLegalBanner" aria-label="Cerrar aviso legal" style="background:transparent;border:1px solid rgba(255,255,255,0.4);color:#fff;padding:2px 8px;border-radius:4px;cursor:pointer;font-size:11px;">Cerrar</button>
+    <div id="legalBanner">
+        <span class="bold">PFA Simulator Web © 2025</span>
+        <span class="subtle">Uso estrictamente educativo. Obra protegida. Prohibida redistribución o derivaciones sin autorización.</span>
+        <a href="LICENSE" target="_blank">Licencia</a>
+        <a href="TERMS_OF_USE.md" target="_blank">Términos</a>
+        <button id="closeLegalBanner" aria-label="Cerrar aviso legal">Cerrar</button>
     </div>
 
     <script>
@@ -77,16 +77,16 @@
         <div class="modal-content">
             <h2>Configuración de Simulación de PFA</h2>
             <div class="form-group" style="margin-top:8px;">
-                <label style="display:flex;flex-direction:column;gap:6px;font-weight:600;">
+                <label class="api-key-block">
                     Clave OpenAI / Modo Demo:
-                    <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;">
-                        <input type="password" id="apiKeyInput" placeholder="sk-... (opcional si usas Demo)" aria-describedby="apiKeyHint" style="flex:1;min-width:260px;padding:6px 10px;" />
-                        <label style="display:inline-flex;align-items:center;gap:4px;font-weight:500;background:#f1f5f9;padding:4px 8px;border-radius:6px;cursor:pointer;font-size:13px;">
+                    <div class="api-key-row">
+                        <input type="password" id="apiKeyInput" placeholder="sk-... (opcional si usas Demo)" aria-describedby="apiKeyHint" />
+                        <label class="demo-toggle">
                             <input type="checkbox" id="demoModeToggle" /> Demo
                         </label>
                     </div>
-                    <small id="apiKeyHint" style="color:#555;font-weight:400;">Ingresa tu propia clave para respuestas reales. Activa "Demo" para respuestas simuladas sin costo.</small>
-                    <small style="color:#777;font-size:11px;font-weight:400;">La clave solo vive en tu navegador (localStorage) y se envía directamente a OpenAI. No pasa por un servidor propio.</small>
+                    <small id="apiKeyHint" class="api-hint">Ingresa tu propia clave para respuestas reales. Activa "Demo" para respuestas simuladas sin costo.</small>
+                    <small class="api-note">La clave solo vive en tu navegador (localStorage) y se envía directamente a OpenAI. No pasa por un servidor propio.</small>
                 </label>
             </div>
             
