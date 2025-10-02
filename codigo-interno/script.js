@@ -97,10 +97,6 @@ class PFASimulator {
         });
 
         // Botones de control del chat
-        document.getElementById('resourcesBtn').addEventListener('click', () => {
-            this.showModal('resourcesDialog');
-        });
-
         document.getElementById('pareBtn').addEventListener('click', () => {
             this.showModal('pareDialog');
         });
@@ -109,7 +105,7 @@ class PFASimulator {
             this.endConversation();
         });
 
-        // Ventana de recursos
+        // Ventana de recursos (modal separada, ya no se usa pero se mantiene compatibilidad)
         document.getElementById('copyResourcesBtn').addEventListener('click', () => {
             this.copySelectedResources();
         });
@@ -1012,12 +1008,19 @@ class PFASimulator {
         this.showModal('resourcesDialog');
     }
 
-    // Copiar recursos seleccionados
+    // Copiar recursos seleccionados (desde modal o desde panel lateral)
     copySelectedResources() {
         const selected = [];
+        // Buscar en el modal separado primero (compatibilidad)
         document.querySelectorAll('.resources-list input[type="checkbox"]:checked').forEach(cb => {
             selected.push(cb.value);
         });
+        // Si no hay nada en el modal, buscar en el panel lateral
+        if (selected.length === 0) {
+            document.querySelectorAll('.resource-checkbox:checked').forEach(cb => {
+                selected.push(cb.value);
+            });
+        }
         
         if (selected.length > 0) {
             navigator.clipboard.writeText(selected.join('\n')).then(() => {
@@ -1028,9 +1031,10 @@ class PFASimulator {
         }
     }
 
-    // Aplicar recursos
+    // Aplicar recursos (desde modal o automático desde panel lateral)
     applyResources() {
         const selected = [];
+        // Buscar en el modal separado primero (compatibilidad)
         document.querySelectorAll('.resources-list input[type="checkbox"]:checked').forEach(cb => {
             selected.push(cb.value);
         });

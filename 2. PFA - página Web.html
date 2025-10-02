@@ -319,9 +319,6 @@
                 <div class="chat-header">
                     <h3>Chat de Primeros Auxilios Psicológicos</h3>
                     <div class="chat-controls">
-                        <button id="resourcesBtn" class="btn btn-secondary">
-                            <i class="fas fa-book"></i> Recursos
-                        </button>
                         <button id="pareBtn" class="btn btn-danger">
                             🚨 Derivación Urgente (PAREN)
                         </button>
@@ -346,10 +343,23 @@
             
             <div class="resources-panel">
                 <h4>Recursos de Apoyo</h4>
-                <div id="resourcesList"></div>
-                <button id="uploadMaterialBtn" class="btn btn-secondary">
-                    <i class="fas fa-upload"></i> Cargar Material
-                </button>
+                <p style="font-size: 0.9rem; color: #475569; margin-bottom: 16px;">Seleccione los recursos relevantes para este caso:</p>
+                <div class="resources-list-inline">
+                    <label class="resource-item"><input type="checkbox" class="resource-checkbox" value="SAMU (Ambulancia): 131"> <span>SAMU (Ambulancia): 131</span></label>
+                    <label class="resource-item"><input type="checkbox" class="resource-checkbox" value="BOMBEROS: 132"> <span>BOMBEROS: 132</span></label>
+                    <label class="resource-item"><input type="checkbox" class="resource-checkbox" value="CARABINEROS (Policía): 133"> <span>CARABINEROS (Policía): 133</span></label>
+                    <label class="resource-item"><input type="checkbox" class="resource-checkbox" value="Policía de Investigaciones: 134"> <span>Policía de Investigaciones: 134</span></label>
+                    <label class="resource-item"><input type="checkbox" class="resource-checkbox" value="Centro de Apoyo a Víctimas: 600 818 1000"> <span>Centro de Apoyo a Víctimas: 600 818 1000</span></label>
+                    <label class="resource-item"><input type="checkbox" class="resource-checkbox" value="Salud Responde: 600 360 7777"> <span>Salud Responde: 600 360 7777</span></label>
+                    <label class="resource-item"><input type="checkbox" class="resource-checkbox" value="FONASA: 600 360 3000"> <span>FONASA: 600 360 3000</span></label>
+                    <label class="resource-item"><input type="checkbox" class="resource-checkbox" value="Centro de la Mujer (SERNAM): 800 104 008"> <span>Centro de la Mujer (SERNAM): 800 104 008</span></label>
+                    <label class="resource-item"><input type="checkbox" class="resource-checkbox" value="Defensoría Penal Pública: (2) 2439 6800"> <span>Defensoría Penal Pública: (2) 2439 6800</span></label>
+                </div>
+                <div class="resources-actions">
+                    <button id="uploadMaterialBtn" class="btn btn-secondary" style="width: 100%; margin-bottom: 8px;">
+                        <i class="fas fa-upload"></i> Cargar Material
+                    </button>
+                </div>
             </div>
         </div>
     </div>

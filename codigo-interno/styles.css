@@ -456,13 +456,66 @@ body {
     padding: 20px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
     height: fit-content;
+    max-height: 90vh;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
 }
 
 .resources-panel h4 {
     color: #007bff;
-    margin-bottom: 15px;
+    margin-bottom: 8px;
     border-bottom: 2px solid #e9ecef;
     padding-bottom: 10px;
+    font-size: 1.15rem;
+}
+
+.resources-list-inline {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 16px;
+    flex: 1;
+    overflow-y: auto;
+}
+
+.resource-item {
+    display: flex;
+    align-items: center;
+    padding: 10px 12px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: 2px solid transparent;
+    font-size: 0.9rem;
+}
+
+.resource-item:hover {
+    background-color: #e9ecef;
+    border-color: #007bff;
+}
+
+.resource-item input[type="checkbox"] {
+    margin-right: 10px;
+    transform: scale(1.2);
+    cursor: pointer;
+}
+
+.resource-item input[type="checkbox"]:checked + span {
+    font-weight: 600;
+    color: #007bff;
+}
+
+.resource-item span {
+    flex: 1;
+    line-height: 1.4;
+}
+
+.resources-actions {
+    margin-top: auto;
+    padding-top: 12px;
+    border-top: 1px solid #e9ecef;
 }
 
 #resourcesList {
