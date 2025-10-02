@@ -266,12 +266,74 @@ class PFASimulator {
 
     // Mostrar modal
     showModal(modalId) {
-        document.getElementById(modalId).classList.add('active');
+        const modal = document.getElementById(modalId);
+        if (!modal) return;
+        // Aplicar atributos de accesibilidad
+        modal.setAttribute('role', 'dialog');
+        modal.setAttribute('aria-modal', 'true');
+        // Guardar foco previo
+        this._previousFocus = document.activeElement;
+        // Mostrar
+        modal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+        // Enfocar primer elemento interactivo
+        const focusable = modal.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+        if (focusable.length) {
+            focusable[0].focus();
+        } else {
+            modal.setAttribute('tabindex','-1');
+            modal.focus();
+        }
+        // Añadir listener de escape y trampa de foco
+        this._activeModalId = modalId;
+        if (!this._modalKeyHandler) {
+            this._modalKeyHandler = (e) => {
+                if (e.key === 'Escape') {
+                    this.hideModal(this._activeModalId);
+                } else if (e.key === 'Tab' && this._activeModalId) {
+                    const currentModal = document.getElementById(this._activeModalId);
+                    if (!currentModal) return;
+                    const nodes = currentModal.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+                    const focusables = Array.from(nodes).filter(el => !el.disabled && el.offsetParent !== null);
+                    if (!focusables.length) return;
+                    const first = focusables[0];
+                    const last = focusables[focusables.length - 1];
+                    if (e.shiftKey) {
+                        if (document.activeElement === first) {
+                            e.preventDefault();
+                            last.focus();
+                        }
+                    } else {
+                        if (document.activeElement === last) {
+                            e.preventDefault();
+                            first.focus();
+                        }
+                    }
+                }
+            };
+            document.addEventListener('keydown', this._modalKeyHandler);
+        }
     }
 
     // Ocultar modal
     hideModal(modalId) {
-        document.getElementById(modalId).classList.remove('active');
+        const modal = document.getElementById(modalId);
+        if (!modal) return;
+        modal.classList.remove('active');
+        // Restaurar scroll si no quedan modales activos
+        const anyActive = document.querySelector('.modal.active');
+        if (!anyActive) {
+            document.body.style.overflow = '';
+            this._activeModalId = null;
+            if (this._modalKeyHandler) {
+                document.removeEventListener('keydown', this._modalKeyHandler);
+                this._modalKeyHandler = null;
+            }
+        }
+        // Restaurar foco previo
+        if (this._previousFocus && typeof this._previousFocus.focus === 'function') {
+            try { this._previousFocus.focus(); } catch(_){}
+        }
     }
 
     // Aleatorizar selecciones
