@@ -95,6 +95,47 @@ class PromptFactory {
       })
     };
   }
+
+  async buildPatientFeedbackPrompt({ config, history, maxHistory = 18 }) {
+    const d = await this.load();
+    const conf = d.feedback && d.feedback.patient;
+    if (!conf) throw new Error('Prompts.feedback.patient no disponible');
+    const recent = (history || [])
+      .filter(m => m.role === 'user' || m.role === 'assistant')
+      .slice(-maxHistory)
+      .map(m => `${m.role === 'user' ? 'PROVEEDOR' : 'SOBREVIVIENTE'}: ${m.content}`)
+      .join('\n');
+    return {
+      system: conf.system,
+      user: this._fill(conf.template, {
+        age: config.age,
+        gender: config.gender,
+        education: config.education,
+        historyCount: maxHistory,
+        recentHistory: recent || '—'
+      })
+    };
+  }
+
+  async buildTechnicalFeedbackPrompt({ history, pareDetectedList = [], studentReportedList = [], maxHistory = 22 }) {
+    const d = await this.load();
+    const conf = d.feedback && d.feedback.technical;
+    if (!conf) throw new Error('Prompts.feedback.technical no disponible');
+    const recent = (history || [])
+      .filter(m => m.role === 'user' || m.role === 'assistant')
+      .slice(-maxHistory)
+      .map(m => `${m.role === 'user' ? 'PROVEEDOR' : 'SOBREVIVIENTE'}: ${m.content}`)
+      .join('\n');
+    return {
+      system: conf.system,
+      user: this._fill(conf.template, {
+        historyCount: maxHistory,
+        recentHistory: recent || '—',
+        pareDetectedList: pareDetectedList.length ? pareDetectedList.join(', ') : 'Ninguno',
+        studentReportedList: studentReportedList.length ? studentReportedList.join(', ') : 'No reportado'
+      })
+    };
+  }
 }
 
 window.PromptFactory = PromptFactory;

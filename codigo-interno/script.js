@@ -628,12 +628,31 @@ class PFASimulator {
 
     // Generar feedback del paciente
     async generatePatientFeedback() {
+        if (window.promptFactory instanceof window.PromptFactory) {
+            const { system, user } = await window.promptFactory.buildPatientFeedbackPrompt({
+                config: this.patientCharacteristics,
+                history: this.conversationHistory,
+                maxHistory: 20
+            });
+            return await this.callOpenAI({ system, user });
+        }
         const prompt = this._prewarmedPatientPrompt || this.prompts.patientFeedback(this.conversationHistory);
         return await this.callOpenAI(prompt);
     }
 
     // Generar feedback técnico
     async generateTechnicalFeedback() {
+        if (window.promptFactory instanceof window.PromptFactory) {
+            const pareDetectedList = Array.from(this.pareCriteriaDetected || []);
+            const studentReportedList = Array.from(this.pareReportedByStudent || []);
+            const { system, user } = await window.promptFactory.buildTechnicalFeedbackPrompt({
+                history: this.conversationHistory,
+                pareDetectedList,
+                studentReportedList,
+                maxHistory: 24
+            });
+            return await this.callOpenAI({ system, user });
+        }
         const prompt = this._prewarmedTechnicalPrompt || this.prompts.technicalFeedback(this.conversationHistory);
         return await this.callOpenAI(prompt);
     }
