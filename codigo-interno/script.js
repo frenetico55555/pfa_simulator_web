@@ -304,7 +304,7 @@ class PFASimulator {
         this.patientCharacteristics = config;
         
         this.hideModal('simulationConfigWindow');
-        this.showLoading('Generando simulación...');
+        this.showLoading('Esperando que la enfermera de triage le asigne un caso...');
         
         try {
             await this.createTraumaStory();
