@@ -7,6 +7,8 @@ class ModalManager {
     this.activeStack = [];
     this.keyHandler = this.onKey.bind(this);
     document.addEventListener('click', e => this.onClick(e));
+    // Auto labeling support cache
+    this._labeled = new WeakSet();
   }
 
   onClick(e) {
@@ -32,6 +34,7 @@ class ModalManager {
     modal.classList.add('active');
     modal.setAttribute('role','dialog');
     modal.setAttribute('aria-modal','true');
+    this.ensureAriaLabels(modal);
     const focusable = modal.querySelector('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
     if (focusable) focusable.focus();
   }
@@ -47,6 +50,22 @@ class ModalManager {
 
   onKey(e) {
     if (e.key === 'Escape') this.closeTop();
+  }
+
+  ensureAriaLabels(modal){
+    if (this._labeled.has(modal)) return;
+    const idBase = modal.id || ('modal_' + Math.random().toString(36).slice(2));
+    if (!modal.id) modal.id = idBase;
+    // Find first heading inside modal-content
+    const heading = modal.querySelector('h1, h2, h3, h4, h5, h6');
+    if (heading && !heading.id) heading.id = idBase + '_title';
+    const descCandidate = modal.querySelector('p, .modal-description');
+    if (heading) modal.setAttribute('aria-labelledby', heading.id);
+    if (descCandidate) {
+      if (!descCandidate.id) descCandidate.id = idBase + '_desc';
+      modal.setAttribute('aria-describedby', descCandidate.id);
+    }
+    this._labeled.add(modal);
   }
 }
 

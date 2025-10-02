@@ -181,13 +181,13 @@
                 </select>
             </div>
 
-            <button id="advancedOptionsBtn" class="btn btn-secondary">Opciones Avanzadas</button>
+            <button id="advancedOptionsBtn" class="btn btn-secondary" data-modal-open="advancedOptionsDialog">Opciones Avanzadas</button>
             <button id="startSimulationBtn" class="btn btn-primary">Iniciar Simulación</button>
         </div>
     </div>
 
     <!-- Ventana de Opciones Avanzadas -->
-    <div id="advancedOptionsDialog" class="modal">
+    <div id="advancedOptionsDialog" class="modal" data-modal>
         <div class="modal-content">
             <h2>Opciones de Configuración Avanzadas</h2>
             
@@ -303,12 +303,12 @@
                 </select>
             </div>
 
-            <button id="closeAdvancedOptions" class="btn btn-primary">Cerrar</button>
+            <button id="closeAdvancedOptions" class="btn btn-primary" data-modal-close>Cerrar</button>
         </div>
     </div>
 
     <!-- Ventana de Asignación de Triage -->
-    <div id="triageWindow" class="modal">
+    <div id="triageWindow" class="modal" data-modal>
         <div class="modal-content">
             <div class="triage-content">
                 <div class="nurse-image">
@@ -316,21 +316,21 @@
                 </div>
                 <div class="triage-message" id="triageMessage"></div>
             </div>
-            <button id="acceptCaseBtn" class="btn btn-primary">Aceptar Caso</button>
+            <button id="acceptCaseBtn" class="btn btn-primary" data-modal-close>Aceptar Caso</button>
         </div>
     </div>
 
     <!-- Ventana Principal de Simulación -->
-    <div id="simulationWindow" class="modal">
+    <div id="simulationWindow" class="modal" data-modal>
         <div class="modal-content simulation-content">
             <div class="chat-container">
                 <div class="chat-header">
                     <h3>Chat de Primeros Auxilios Psicológicos</h3>
                     <div class="chat-controls">
-                        <button id="resourcesBtn" class="btn btn-secondary">
+                        <button id="resourcesBtn" class="btn btn-secondary" data-modal-open="resourcesDialog">
                             <i class="fas fa-book"></i> Recursos
                         </button>
-                        <button id="pareBtn" class="btn btn-danger">
+                        <button id="pareBtn" class="btn btn-danger" data-modal-open="pareDialog">
                             🚨 Derivación Urgente (PAREN)
                         </button>
                         <button id="endConversationBtn" class="btn btn-danger">
@@ -355,7 +355,7 @@
             <div class="resources-panel">
                 <h4>Recursos de Apoyo</h4>
                 <div id="resourcesList"></div>
-                <button id="uploadMaterialBtn" class="btn btn-secondary">
+                <button id="uploadMaterialBtn" class="btn btn-secondary" data-modal-open="uploadDialog">
                     <i class="fas fa-upload"></i> Cargar Material
                 </button>
             </div>
@@ -363,7 +363,7 @@
     </div>
 
     <!-- Ventana de Recursos -->
-    <div id="resourcesDialog" class="modal">
+    <div id="resourcesDialog" class="modal" data-modal>
         <div class="modal-content">
             <h3>Seleccionar Recursos de Apoyo</h3>
             <p>Seleccione los recursos relevantes para este caso:</p>
@@ -382,13 +382,13 @@
             
             <div class="button-group">
                 <button id="copyResourcesBtn" class="btn btn-secondary">Copiar selección</button>
-                <button id="applyResourcesBtn" class="btn btn-primary">Aplicar</button>
+                <button id="applyResourcesBtn" class="btn btn-primary" data-modal-close>Aplicar</button>
             </div>
         </div>
     </div>
 
     <!-- Ventana de Carga de Archivos -->
-    <div id="uploadDialog" class="modal">
+    <div id="uploadDialog" class="modal" data-modal>
         <div class="modal-content">
             <h3>Cargar Material de Apoyo</h3>
             <p>Seleccione archivos desde su computador para agregar como recursos de apoyo:</p>
@@ -407,14 +407,14 @@
             </div>
             
             <div class="button-group">
-                <button id="cancelUploadBtn" class="btn btn-secondary">Cancelar</button>
-                <button id="confirmUploadBtn" class="btn btn-primary">Cargar Archivos</button>
+                <button id="cancelUploadBtn" class="btn btn-secondary" data-modal-close>Cancelar</button>
+                <button id="confirmUploadBtn" class="btn btn-primary" data-modal-close>Cargar Archivos</button>
             </div>
         </div>
     </div>
 
     <!-- Ventana de Criterios PARE -->
-    <div id="pareDialog" class="modal">
+    <div id="pareDialog" class="modal" data-modal>
         <div class="modal-content">
             <h3>Seleccionar Criterio PAREN Detectado</h3>
             <p>Selecciona el criterio PAREN que observaste durante la simulación:</p>
@@ -428,21 +428,21 @@
             </select>
             
             <div class="button-group">
-                <button id="confirmPareBtn" class="btn btn-primary">Confirmar</button>
-                <button id="cancelPareBtn" class="btn btn-secondary">Cancelar</button>
+                <button id="confirmPareBtn" class="btn btn-primary" data-modal-close>Confirmar</button>
+                <button id="cancelPareBtn" class="btn btn-secondary" data-modal-close>Cancelar</button>
             </div>
         </div>
     </div>
 
     <!-- Ventana de Menú -->
-    <div id="menuWindow" class="modal">
+    <div id="menuWindow" class="modal" data-modal>
         <div class="modal-content">
             <h3>Conversación Finalizada</h3>
             <p>La conversación ha terminado. Seleccione una opción para continuar.</p>
             
             <div class="menu-buttons">
                 <button id="progressBtn" class="btn btn-secondary">Progreso Anterior</button>
-                <button id="feedbackBtn" class="btn btn-primary">Ir al Feedback</button>
+                <button id="feedbackBtn" class="btn btn-primary" data-modal-open="feedbackWindow">Ir al Feedback</button>
                 <button id="exportBtn" class="btn btn-secondary">Exportar Conversación</button>
                 <button id="exitBtn" class="btn btn-danger">Salir</button>
             </div>
@@ -450,7 +450,7 @@
     </div>
 
     <!-- Ventana de Feedback -->
-    <div id="feedbackWindow" class="modal">
+    <div id="feedbackWindow" class="modal" data-modal>
         <div class="modal-content feedback-content">
             <div class="feedback-tabs">
                 <div class="tab-buttons">
@@ -598,7 +598,7 @@
                             </div>
                         </div>
                         
-                        <button id="showSummaryBtn" class="btn btn-primary">Pasar al Resumen Final</button>
+                        <button id="showSummaryBtn" class="btn btn-primary" data-modal-open="summaryWindow">Pasar al Resumen Final</button>
                     </div>
                 </div>
             </div>
@@ -606,7 +606,7 @@
     </div>
 
     <!-- Ventana de Resumen Final -->
-    <div id="summaryWindow" class="modal">
+    <div id="summaryWindow" class="modal" data-modal>
         <div class="modal-content">
             <h2>Resumen Final de la Evaluación</h2>
             
@@ -622,7 +622,7 @@
             </div>
             
             <div class="button-group">
-                <button id="backToFeedbackBtn" class="btn btn-secondary">Volver</button>
+                <button id="backToFeedbackBtn" class="btn btn-secondary" data-modal-close>Volver</button>
                 <button id="finishFeedbackBtn" class="btn btn-primary">Finalizar Feedback</button>
             </div>
         </div>

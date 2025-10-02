@@ -5,12 +5,19 @@ Simulador de Primeros Auxilios Psicológicos (PFA) para entrenamiento educativo.
 ## 🚀 Novedades v1.1.0
 
 ### 🎯 Hub de Desarrollo Multi-Perfil
+
 - **Entrada unificada** en `app.html` con tres perfiles de usuario
 - **Admin**: Gestión completa y editor de prompts
 - **Instructor**: Configuración de simulaciones y casos
 - **Alumno**: Práctica interactiva y evaluación
 
 ### 🐛 Sistema de Feedback Universal
+
+- **Accesibilidad mejorada**: Sistema de modales declarativos con etiquetado ARIA automático y región viva para notificaciones
+- **Rendimiento**: Carga diferida de gráficos y feedback, generación progresiva de historia clínica y uso de requestIdleCallback
+- **Unificación visual**: Tokens de diseño centralizados, botones modernizados y estilos de sliders unificados
+- **Notificaciones no bloqueantes**: Reemplazo de alert() por toasts accesibles (aria-live polite)
+
 - **Widget integrado** en todas las páginas para reportes instantáneos
 - **Configuración híbrida**: Bugs→GitHub Issues, Sugerencias→Email
 - **Contexto automático**: Captura técnica para debugging eficiente
@@ -48,11 +55,13 @@ codigo-interno/           # Lógica, estilos, prompts y utilidades
 ## Uso Rápido
 
 ### 🎯 Para Desarrollo/Testing
+
 1. **Accede al Hub**: [app.html](https://frenetico55555.github.io/pfa_simulator_web/app.html)
 2. **Selecciona tu perfil**: Admin, Instructor, o Alumno
 3. **Usa el feedback**: Botón "🐛 Reportar Issue" siempre disponible
 
 ### 📚 Para Uso Educativo
+
 1. Clonar repositorio.
 2. Abrir `INDEX.html` o directamente `2. PFA - página Web.html` en el navegador.
 3. Ingresar tu propia API Key de OpenAI (no se guarda).
@@ -62,11 +71,13 @@ codigo-interno/           # Lógica, estilos, prompts y utilidades
 ## 🐛 Sistema de Feedback
 
 ### Para Reportar Issues
+
 - **Widget integrado**: Botón flotante en todas las páginas
 - **GitHub Issues**: [Crear reporte estructurado](https://github.com/frenetico55555/pfa_simulator_web/issues/new/choose)
-- **Email directo**: rfiguerc@uc.cl para sugerencias
+- **Email directo**: [rfiguerc@uc.cl](mailto:rfiguerc@uc.cl) para sugerencias
 
 ### Tipos de Reporte
+
 - 🐛 **Bugs**: Automáticamente a GitHub Issues
 - 💡 **Sugerencias**: Email directo al desarrollador
 - ⚡ **Urgente**: Ambos canales simultáneamente

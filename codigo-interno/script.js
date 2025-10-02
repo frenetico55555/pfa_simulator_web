@@ -44,76 +44,21 @@ class PFASimulator {
         this.demoMode = urlParams.get('demo') === '1';
         this.apiKeyInput = null;
         this.apiKeyValid = false;
-    this.prompts = new PromptFactory();
-    // Cache ligero de elementos (lazy fill)
-    this._elCache = new Map();
-        
-        this.initializeEventListeners();
-        this.setupSliders();
-        this.initAPIKeyPersistence();
+        this.prompts = new PromptFactory();
+        // Cache ligero de elementos (lazy fill)
     }
 
-    // Inicializar todos los event listeners
-    initializeEventListeners() {
-        // NOTA (Refactor Step 2 - Phase 1): Esta función ahora solo orquesta métodos especializados
-        // que agrupan listeners por dominio funcional. Mantener esta capa delgada.
-        // Refactor Step 2 (Phase 1): modularización de listeners
-        this.apiKeyInput = document.getElementById('apiKeyInput');
-        this.bindApiKeyEvents();
-        this.bindConfigEvents();
-        this.bindTriageEvents();
-        this.bindChatEvents();
-        this.bindResourceEvents();
-    this.bindUploadEvents();
-        this.bindPareEvents();
-        this.bindMenuEvents();
-        this.bindFeedbackEvents();
-    }
-
-    // === Listeners: Secciones Modulares ===
-    /** API Key & demo mode */
-    bindApiKeyEvents() {
-        if (this.apiKeyInput) {
-            this.apiKeyInput.addEventListener('input', () => {
-                const value = this.apiKeyInput.value.trim();
-                if (value) localStorage.setItem('pfa_api_key', value);
-                this.validateAndMarkAPIKey();
-            });
+    // Delegación a modalManager (compat)
+    openModal(id){ if (window.modalManager) window.modalManager.open(id); }
+    closeModal(id){
+        if (!window.modalManager) return;
+        const top = window.modalManager.activeStack[window.modalManager.activeStack.length-1];
+        if (top && top.id === id) {
+            window.modalManager.closeTop();
+        } else {
+            const modal = document.getElementById(id);
+            if (modal) modal.classList.remove('active');
         }
-        const demoToggle = document.getElementById('demoModeToggle');
-        if (demoToggle) {
-            demoToggle.addEventListener('change', (e) => {
-                this.demoMode = e.target.checked;
-                this.showInfoMessage(this.demoMode
-                    ? 'Modo demo activado: se generarán respuestas simuladas sin usar la API.'
-                    : 'Modo demo desactivado: se usarán respuestas reales (requiere API key).');
-            });
-        }
-    }
-
-    /** Configuración inicial de simulación */
-    bindConfigEvents() {
-        const difficultySlider = document.getElementById('difficultySlider');
-        if (difficultySlider) {
-            difficultySlider.addEventListener('input', (e) => {
-                const valueSpan = document.getElementById('difficultyValue');
-                if (valueSpan) valueSpan.textContent = e.target.value + '%';
-            });
-        }
-        const randomSimulation = document.getElementById('randomSimulation');
-        if (randomSimulation) {
-            randomSimulation.addEventListener('change', (e) => {
-                if (e.target.checked) this.randomizeSelections();
-            });
-        }
-        const advBtn = document.getElementById('advancedOptionsBtn');
-        if (advBtn) advBtn.addEventListener('click', () => this.showModal('advancedOptionsDialog'));
-        const closeAdv = document.getElementById('closeAdvancedOptions');
-        if (closeAdv) closeAdv.addEventListener('click', () => this.hideModal('advancedOptionsDialog'));
-        const startBtn = document.getElementById('startSimulationBtn');
-        if (startBtn) startBtn.addEventListener('click', () => this.startSimulation());
-        const randomPersonality = document.getElementById('randomizePersonality');
-        if (randomPersonality) randomPersonality.addEventListener('click', () => this.randomizePersonality());
     }
 
     /** Aceptación del caso (triage) */
@@ -135,10 +80,10 @@ class PFASimulator {
                 }
             });
         }
-        const resourcesBtn = document.getElementById('resourcesBtn');
-        if (resourcesBtn) resourcesBtn.addEventListener('click', () => this.showModal('resourcesDialog'));
-        const pareBtn = document.getElementById('pareBtn');
-        if (pareBtn) pareBtn.addEventListener('click', () => this.showModal('pareDialog'));
+    const resourcesBtn = document.getElementById('resourcesBtn');
+    if (resourcesBtn && !resourcesBtn.hasAttribute('data-modal-open')) resourcesBtn.addEventListener('click', () => this.openModal('resourcesDialog'));
+    const pareBtn = document.getElementById('pareBtn');
+    if (pareBtn && !pareBtn.hasAttribute('data-modal-open')) pareBtn.addEventListener('click', () => this.openModal('pareDialog'));
         const endBtn = document.getElementById('endConversationBtn');
         if (endBtn) endBtn.addEventListener('click', () => this.endConversation());
     }
@@ -154,32 +99,28 @@ class PFASimulator {
     /** Subida de archivos */
     bindUploadEvents() {
         const uploadBtn = document.getElementById('uploadMaterialBtn');
-        if (uploadBtn) uploadBtn.addEventListener('click', () => {
-            this.showModal('uploadDialog');
-            // Inicializar drag & drop solo la primera vez que se abre
-            if (!this._uploadInitialized) {
-                this.setupFileUpload();
-                this._uploadInitialized = true;
-            }
+        if (uploadBtn && !uploadBtn.hasAttribute('data-modal-open')) uploadBtn.addEventListener('click', () => {
+            this.openModal('uploadDialog');
+            if (!this._uploadInitialized) { this.setupFileUpload(); this._uploadInitialized = true; }
         });
         const cancelUpload = document.getElementById('cancelUploadBtn');
-        if (cancelUpload) cancelUpload.addEventListener('click', () => this.hideModal('uploadDialog'));
+        if (cancelUpload && !cancelUpload.hasAttribute('data-modal-close')) cancelUpload.addEventListener('click', () => this.closeModal('uploadDialog'));
         const confirmUpload = document.getElementById('confirmUploadBtn');
-        if (confirmUpload) confirmUpload.addEventListener('click', () => this.uploadFiles());
+        if (confirmUpload && !confirmUpload.hasAttribute('data-modal-close')) confirmUpload.addEventListener('click', () => this.uploadFiles());
     }
 
     /** Criterios PARE */
     bindPareEvents() {
         const confirmPare = document.getElementById('confirmPareBtn');
         if (confirmPare) confirmPare.addEventListener('click', () => this.confirmPareCriteria());
-        const cancelPare = document.getElementById('cancelPareBtn');
-        if (cancelPare) cancelPare.addEventListener('click', () => this.hideModal('pareDialog'));
+    const cancelPare = document.getElementById('cancelPareBtn');
+    if (cancelPare && !cancelPare.hasAttribute('data-modal-close')) cancelPare.addEventListener('click', () => this.closeModal('pareDialog'));
     }
 
     /** Menú posterior a la conversación */
     bindMenuEvents() {
-        const feedbackBtn = document.getElementById('feedbackBtn');
-        if (feedbackBtn) feedbackBtn.addEventListener('click', () => this.showFeedback());
+    const feedbackBtn = document.getElementById('feedbackBtn');
+    if (feedbackBtn && !feedbackBtn.hasAttribute('data-modal-open')) feedbackBtn.addEventListener('click', () => this.showFeedback());
         const exportBtn = document.getElementById('exportBtn');
         if (exportBtn) exportBtn.addEventListener('click', () => this.exportConversation());
         const exitBtn = document.getElementById('exitBtn');
@@ -192,8 +133,8 @@ class PFASimulator {
         if (nextPatient) nextPatient.addEventListener('click', () => this.switchTab('patient'));
         const nextTechnical = document.getElementById('nextToTechnicalBtn');
         if (nextTechnical) nextTechnical.addEventListener('click', () => this.switchTab('technical'));
-        const showSummary = document.getElementById('showSummaryBtn');
-        if (showSummary) showSummary.addEventListener('click', () => this.showSummary());
+    const showSummary = document.getElementById('showSummaryBtn');
+    if (showSummary && !showSummary.hasAttribute('data-modal-open')) showSummary.addEventListener('click', () => this.showSummary());
 
         // Sliders de aspectos del paciente
         document.querySelectorAll('.aspect-slider').forEach(slider => {
@@ -208,8 +149,8 @@ class PFASimulator {
             });
         });
         // Navegación en resumen final
-        const backBtn = document.getElementById('backToFeedbackBtn');
-        if (backBtn) backBtn.addEventListener('click', () => this.hideModal('summaryWindow'));
+    const backBtn = document.getElementById('backToFeedbackBtn');
+    if (backBtn && !backBtn.hasAttribute('data-modal-close')) backBtn.addEventListener('click', () => this.closeModal('summaryWindow'));
         const finishBtn = document.getElementById('finishFeedbackBtn');
         if (finishBtn) finishBtn.addEventListener('click', () => this.finishFeedback());
     }
@@ -272,77 +213,7 @@ class PFASimulator {
     }
     // === Fin helpers UI ===
 
-    // Mostrar modal
-    showModal(modalId) {
-        const modal = document.getElementById(modalId);
-        if (!modal) return;
-        // Aplicar atributos de accesibilidad
-        modal.setAttribute('role', 'dialog');
-        modal.setAttribute('aria-modal', 'true');
-        // Guardar foco previo
-        this._previousFocus = document.activeElement;
-        // Mostrar
-        modal.classList.add('active');
-        document.body.style.overflow = 'hidden';
-        // Enfocar primer elemento interactivo
-        const focusable = modal.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
-        if (focusable.length) {
-            focusable[0].focus();
-        } else {
-            modal.setAttribute('tabindex','-1');
-            modal.focus();
-        }
-        // Añadir listener de escape y trampa de foco
-        this._activeModalId = modalId;
-        if (!this._modalKeyHandler) {
-            this._modalKeyHandler = (e) => {
-                if (e.key === 'Escape') {
-                    this.hideModal(this._activeModalId);
-                } else if (e.key === 'Tab' && this._activeModalId) {
-                    const currentModal = document.getElementById(this._activeModalId);
-                    if (!currentModal) return;
-                    const nodes = currentModal.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
-                    const focusables = Array.from(nodes).filter(el => !el.disabled && el.offsetParent !== null);
-                    if (!focusables.length) return;
-                    const first = focusables[0];
-                    const last = focusables[focusables.length - 1];
-                    if (e.shiftKey) {
-                        if (document.activeElement === first) {
-                            e.preventDefault();
-                            last.focus();
-                        }
-                    } else {
-                        if (document.activeElement === last) {
-                            e.preventDefault();
-                            first.focus();
-                        }
-                    }
-                }
-            };
-            document.addEventListener('keydown', this._modalKeyHandler);
-        }
-    }
-
-    // Ocultar modal
-    hideModal(modalId) {
-        const modal = document.getElementById(modalId);
-        if (!modal) return;
-        modal.classList.remove('active');
-        // Restaurar scroll si no quedan modales activos
-        const anyActive = document.querySelector('.modal.active');
-        if (!anyActive) {
-            document.body.style.overflow = '';
-            this._activeModalId = null;
-            if (this._modalKeyHandler) {
-                document.removeEventListener('keydown', this._modalKeyHandler);
-                this._modalKeyHandler = null;
-            }
-        }
-        // Restaurar foco previo
-        if (this._previousFocus && typeof this._previousFocus.focus === 'function') {
-            try { this._previousFocus.focus(); } catch(_){}
-        }
-    }
+    // (showModal/hideModal) deprecated; replaced by openModal/closeModal wrappers
 
     // Aleatorizar selecciones
     randomizeSelections() {
@@ -392,7 +263,7 @@ class PFASimulator {
         this.providerName = config.providerName;
         this.patientCharacteristics = config;
         
-        this.hideModal('simulationConfigWindow');
+    this.closeModal('simulationConfigWindow');
         this.showLoading('Preparando simulación...');
         // Diferir generación para liberar el hilo y permitir pintar UI
         this.scheduleTraumaStoryGeneration();
@@ -547,13 +418,13 @@ class PFASimulator {
     // Mostrar ventana de triage
     showTriageWindow(evaluation) {
         document.getElementById('triageMessage').innerHTML = evaluation;
-        this.showModal('triageWindow');
+    this.openModal('triageWindow');
     }
 
     // Aceptar caso
     acceptCase() {
-        this.hideModal('triageWindow');
-        this.showModal('simulationWindow');
+    this.closeModal('triageWindow');
+    this.openModal('simulationWindow');
         this.currentStage = 'survivor';
         
         // Mostrar mensaje inicial
@@ -658,7 +529,7 @@ class PFASimulator {
         );
         
         if (hasPARE) {
-            this.showModal('pareDialog');
+            this.openModal('pareDialog');
         }
     }
 
@@ -666,20 +537,20 @@ class PFASimulator {
     confirmPareCriteria() {
         const pareCriteria = document.getElementById('pareCriteria').value;
         this.pareDetected = pareCriteria;
-        this.hideModal('pareDialog');
+    this.closeModal('pareDialog');
     this.showToast(`Criterio PARE registrado: ${pareCriteria}`, { type: 'info' });
     }
 
     // Finalizar conversación
     endConversation() {
-        this.hideModal('simulationWindow');
-        this.showModal('menuWindow');
+    this.closeModal('simulationWindow');
+    this.openModal('menuWindow');
     }
 
     // Mostrar feedback
     showFeedback() {
-        this.hideModal('menuWindow');
-        this.showModal('feedbackWindow');
+    this.closeModal('menuWindow');
+    this.openModal('feedbackWindow');
         this.generateAutomatedFeedback();
     }
 
@@ -860,8 +731,8 @@ class PFASimulator {
 
     // Mostrar resumen
     showSummary() {
-        this.hideModal('feedbackWindow');
-        this.showModal('summaryWindow');
+    this.closeModal('feedbackWindow');
+    this.openModal('summaryWindow');
         this.createCharts();
     }
 
@@ -974,11 +845,16 @@ class PFASimulator {
         if (!container) {
             container = document.createElement('div');
             container.id = 'pfaToastContainer';
+            // Accesibilidad: un único live region contenedor (polite) para evitar lectura duplicada
+            container.setAttribute('role','status');
+            container.setAttribute('aria-live','polite');
+            container.setAttribute('aria-atomic','false');
+            container.setAttribute('aria-relevant','additions text');
+            container.setAttribute('aria-label','Notificaciones del simulador');
             document.body.appendChild(container);
         }
         const toast = document.createElement('div');
         toast.className = `pfa-toast ${type}`;
-        toast.setAttribute('role','status');
         toast.innerHTML = `<span style="flex:1">${message}</span><button aria-label="Cerrar">×</button>`;
         const closeBtn = toast.querySelector('button');
         closeBtn.addEventListener('click', () => this._dismissToast(toast));
@@ -989,7 +865,7 @@ class PFASimulator {
 
     // Mostrar recursos
     showResources() {
-        this.showModal('resourcesDialog');
+    this.openModal('resourcesDialog');
     }
 
     // Copiar recursos seleccionados
@@ -1021,7 +897,7 @@ class PFASimulator {
                 `<div>• ${resource}</div>`
             ).join('');
             
-            this.hideModal('resourcesDialog');
+            this.closeModal('resourcesDialog');
         } else {
             this.showToast('No hay recursos seleccionados', { type: 'warning' });
         }
@@ -1145,7 +1021,7 @@ class PFASimulator {
                     
                     if (index === fileItems.length - 1) {
                         setTimeout(() => {
-                            this.hideModal('uploadDialog');
+                            this.closeModal('uploadDialog');
                             this.showToast('Archivos cargados exitosamente', { type: 'success' });
                         }, 1000);
                     }
@@ -1179,9 +1055,9 @@ class PFASimulator {
 
     // Finalizar feedback
     finishFeedback() {
-        this.hideModal('summaryWindow');
-        this.hideModal('feedbackWindow');
-        this.showModal('simulationConfigWindow');
+    this.closeModal('summaryWindow');
+    this.closeModal('feedbackWindow');
+    this.openModal('simulationConfigWindow');
         
         // Limpiar conversación
         this.conversationHistory = [];
