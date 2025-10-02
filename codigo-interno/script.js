@@ -280,11 +280,12 @@ class PFASimulator {
         this.providerName = config.providerName;
         this.patientCharacteristics = config;
         
-	this.closeModal('simulationConfigWindow');
-	    const urlParams = new URLSearchParams(window.location.search);
-	    const immersive = urlParams.get('mode')==='student' && urlParams.get('autostart')==='true';
-	    const loadingMsg = immersive ? 'Esperando que la enfermera de triage le asigne un caso...' : 'Generando simulación (historia y triage)...';
-	    this.showLoading(loadingMsg);
+    this.closeModal('simulationConfigWindow');
+        const urlParams = new URLSearchParams(window.location.search);
+        const immersive = urlParams.get('mode')==='student' && urlParams.get('autostart')==='true';
+        const loadingMsg = immersive ? 'Esperando que la enfermera de triage le asigne un caso...' : 'Generando simulación (historia y triage)...';
+        console.debug('[autostart] startSimulation -> mostrando overlay con texto:', loadingMsg);
+        this.showLoading(loadingMsg);
         // Diferir generación para liberar el hilo y permitir pintar UI
         this.scheduleTraumaStoryGeneration();
     }
@@ -334,6 +335,26 @@ class PFASimulator {
     // Programar generación diferida (idle o pequeño timeout)
     scheduleTraumaStoryGeneration() {
         const run = () => this.createTraumaStoryProgressive();
+        // Si estamos en autostart estudiante, esperar brevemente a que promptFactory cargue
+        const params = new URLSearchParams(location.search);
+        const waitStructured = params.get('mode')==='student' && params.get('autostart')==='true';
+        if (waitStructured) {
+            let attempts = 0;
+            const maxAttempts = 25; // ~2.5s con 100ms
+            const poll = () => {
+                attempts++;
+                if (window.promptFactory && typeof window.promptFactory.buildStoryPrompt === 'function') {
+                    console.debug('[autostart] PromptFactory structured lista tras', attempts, 'intentos');
+                    run();
+                } else if (attempts < maxAttempts) {
+                    setTimeout(poll, 100);
+                } else {
+                    console.warn('[autostart] PromptFactory no disponible tras espera. Continuando con legacy.');
+                    run();
+                }
+            };
+            return poll();
+        }
         if ('requestIdleCallback' in window) {
             requestIdleCallback(run, { timeout: 1500 });
         } else {
@@ -346,10 +367,12 @@ class PFASimulator {
         const config = this.patientCharacteristics;
         try {
             const t0 = performance.now();
+            console.debug('[story] fase 1 inicio');
             this.updateLoadingText('Generando historia del caso (1/2)...');
             // Nuevo flujo usando PromptFactory si disponible
             let story;
             if (window.promptFactory && typeof window.promptFactory.buildStoryPrompt === 'function') {
+                console.debug('[story] usando structured PromptFactory para story');
                 const { system, user } = await window.promptFactory.buildStoryPrompt({
                     traumaType: config.traumaType,
                     traumaSetting: config.traumaSetting,
@@ -359,17 +382,21 @@ class PFASimulator {
                 });
                 story = await this.callOpenAI({ system, user });
             } else {
+                console.debug('[story] usando legacy prompt');
                 story = await this.callOpenAI(this.createScreenwriterPrompt(config));
             }
             this.story = story;
+            console.debug('[story] fase 1 completada, longitud historia:', story.length);
             this.updateLoadingText('Generando evaluación de triage (2/2)...');
             let triageEvaluation;
             if (window.promptFactory && typeof window.promptFactory.buildTriagePrompt === 'function') {
+                console.debug('[triage] usando structured PromptFactory');
                 const { system, user } = await window.promptFactory.buildTriagePrompt({
                     storySnippet: story.slice(0, 550) // pequeño extracto para triage
                 });
                 triageEvaluation = await this.callOpenAI({ system, user });
             } else {
+                console.debug('[triage] usando legacy prompt');
                 triageEvaluation = await this.callOpenAI(this.createTriagePrompt(story));
             }
             this.triageEvaluation = triageEvaluation;
@@ -378,6 +405,7 @@ class PFASimulator {
             this.hideLoading();
             this.showTriageWindow(triageEvaluation);
             console.info('[perf] story+triage ms:', total);
+            console.debug('[triage] longitud evaluación:', (triageEvaluation||'').length);
         } catch (error) {
             console.error('Error en la generación:', error);
             this.hideLoading();
