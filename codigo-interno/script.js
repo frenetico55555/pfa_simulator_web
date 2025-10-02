@@ -387,15 +387,9 @@ class PFASimulator {
         this.patientCharacteristics = config;
         
         this.hideModal('simulationConfigWindow');
-        this.showLoading('Esperando que la enfermera de triage le asigne un caso...');
-        
-        try {
-            await this.createTraumaStory();
-        } catch (error) {
-            console.error('Error al crear la historia:', error);
-            this.hideLoading();
-            this.showToast('Error al generar la simulación. Intente nuevamente.', { type: 'error' });
-        }
+        this.showLoading('Preparando simulación...');
+        // Diferir generación para liberar el hilo y permitir pintar UI
+        this.scheduleTraumaStoryGeneration();
     }
 
     // Obtener configuración de simulación
@@ -440,31 +434,37 @@ class PFASimulator {
     }
 
     // Crear historia de trauma
-    async createTraumaStory() {
+    // Programar generación diferida (idle o pequeño timeout)
+    scheduleTraumaStoryGeneration() {
+        const run = () => this.createTraumaStoryProgressive();
+        if ('requestIdleCallback' in window) {
+            requestIdleCallback(run, { timeout: 1500 });
+        } else {
+            setTimeout(run, 60);
+        }
+    }
+
+    // Generación progresiva con feedback incremental
+    async createTraumaStoryProgressive() {
         const config = this.patientCharacteristics;
-        
-        // Prompt para el guionista
-        const screenwriterPrompt = this.createScreenwriterPrompt(config);
-        
         try {
-            // Generar historia con GPT
-            const story = await this.callOpenAI(screenwriterPrompt);
+            this.updateLoadingText('Generando historia del caso (1/2)...');
+            const story = await this.callOpenAI(this.createScreenwriterPrompt(config));
             this.story = story;
-            
-            // Generar evaluación de triage
-            const triagePrompt = this.createTriagePrompt(story);
-            const triageEvaluation = await this.callOpenAI(triagePrompt);
+            this.updateLoadingText('Generando evaluación de triage (2/2)...');
+            const triageEvaluation = await this.callOpenAI(this.createTriagePrompt(story));
             this.triageEvaluation = triageEvaluation;
-            
             this.hideLoading();
             this.showTriageWindow(triageEvaluation);
-            
         } catch (error) {
             console.error('Error en la generación:', error);
             this.hideLoading();
-            throw error;
+            this.showToast('Error al generar historia/triage', { type: 'error' });
         }
     }
+
+    // (Legacy compat) mantener createTraumaStory para rutas que aún lo llamen
+    async createTraumaStory() { return this.createTraumaStoryProgressive(); }
 
     // Crear prompt del guionista
     createScreenwriterPrompt(config) { return this.prompts.screenwriter(config); }
@@ -865,6 +865,11 @@ class PFASimulator {
     hideLoading() {
         const ind = this.q('#loadingIndicator');
         if (ind) ind.classList.add('hidden');
+    }
+
+    updateLoadingText(text) {
+        const txt = this.q('#loadingText');
+        if (txt) txt.textContent = text;
     }
 
     // Query helper con cache (#id o selector simple)
