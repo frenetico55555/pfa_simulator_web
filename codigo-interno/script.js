@@ -1288,7 +1288,7 @@ function configureRandomSimulation() {
                         window.pfaSimulator.patientCharacteristics = config;
                         
                         // Mostrar loading y crear historia directamente
-                        window.pfaSimulator.showLoading('Generando simulación aleatoria...');
+                        window.pfaSimulator.showLoading('Esperando que la enfermera de triage le asigne un caso...');
                         
                         window.pfaSimulator.createTraumaStory().catch(error => {
                             console.error('Error al crear la historia:', error);
