@@ -11,7 +11,7 @@ class PFASimulator {
         this.conversationHistory = [];
         this.patientCharacteristics = {};
         this.providerName = '';
-        this.selectedModel = 'gpt-4o-mini';
+        this.selectedModel = 'gpt-5';
         this.pareDetected = null;
         this.story = '';
         this.triageEvaluation = '';
