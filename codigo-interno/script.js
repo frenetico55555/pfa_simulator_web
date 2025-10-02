@@ -652,18 +652,21 @@ class PFASimulator {
     // Generar feedback automático
     async generateAutomatedFeedback() {
         if (!this.conversationHistory.length) return;
-        
-        try {
-            // Generar feedback del paciente
-            const patientFeedback = await this.generatePatientFeedback();
-            this.updatePatientFeedback(patientFeedback);
-            
-            // Generar feedback técnico
-            const technicalFeedback = await this.generateTechnicalFeedback();
-            this.updateTechnicalFeedback(technicalFeedback);
-            
-        } catch (error) {
-            console.error('Error al generar feedback:', error);
+        // Performance: diferir a momento de baja prioridad
+        const run = async () => {
+            try {
+                const patientFeedback = await this.generatePatientFeedback();
+                this.updatePatientFeedback(patientFeedback);
+                const technicalFeedback = await this.generateTechnicalFeedback();
+                this.updateTechnicalFeedback(technicalFeedback);
+            } catch (error) {
+                console.error('Error al generar feedback:', error);
+            }
+        };
+        if ('requestIdleCallback' in window) {
+            requestIdleCallback(() => run());
+        } else {
+            setTimeout(run, 200);
         }
     }
 
@@ -800,8 +803,28 @@ class PFASimulator {
 
     // Crear gráficos
     createCharts() {
-        this.createPatientChart();
-        this.createTechnicalChart();
+        this.ensureChartsLibrary().then(() => {
+            this.createPatientChart();
+            this.createTechnicalChart();
+        }).catch(err => {
+            console.error('No se pudo cargar Chart.js', err);
+            this.showToast('No se pudieron generar los gráficos (Chart.js)', { type: 'error' });
+        });
+    }
+
+    // Lazy load de Chart.js solo cuando se requieren gráficos
+    ensureChartsLibrary() {
+        if (window.Chart) return Promise.resolve();
+        if (this._chartLoadingPromise) return this._chartLoadingPromise;
+        this._chartLoadingPromise = new Promise((resolve, reject) => {
+            const script = document.createElement('script');
+            script.src = 'https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js';
+            script.async = true;
+            script.onload = () => resolve();
+            script.onerror = () => reject(new Error('Fallo al cargar Chart.js'));
+            document.head.appendChild(script);
+        });
+        return this._chartLoadingPromise;
     }
 
     // Crear gráfico del paciente
