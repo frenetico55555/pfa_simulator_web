@@ -520,7 +520,7 @@ class PFASimulator {
         
         // Mostrar mensaje inicial
         const chatHistory = document.getElementById('chatHistory');
-        chatHistory.innerHTML = '<div class="chat-message system">El superviviente está en línea. Puede comenzar la interacción.</div>';
+    chatHistory.innerHTML = '<div class="chat-message system">La persona está en línea. Puede comenzar la interacción.</div>';
         
         // Mostrar botones de control
         document.getElementById('endConversationBtn').style.display = 'inline-block';
