@@ -315,7 +315,7 @@ class PFASimulator {
         const config = this.getSimulationConfig();
         
         if (!config.providerName) {
-            alert('Por favor, ingrese su nombre');
+            this.showToast('Por favor, ingrese su nombre', { type: 'warning' });
             return;
         }
 
@@ -330,7 +330,7 @@ class PFASimulator {
         } catch (error) {
             console.error('Error al crear la historia:', error);
             this.hideLoading();
-            alert('Error al generar la simulación. Por favor, intente nuevamente.');
+            this.showToast('Error al generar la simulación. Intente nuevamente.', { type: 'error' });
         }
     }
 
@@ -498,7 +498,7 @@ class PFASimulator {
         if (!message) return;
         
         if (this.currentStage !== 'survivor') {
-            alert('La simulación aún no ha comenzado');
+            this.showToast('La simulación aún no ha comenzado', { type: 'warning' });
             return;
         }
 
@@ -569,7 +569,7 @@ class PFASimulator {
         const pareCriteria = document.getElementById('pareCriteria').value;
         this.pareDetected = pareCriteria;
         this.hideModal('pareDialog');
-        alert(`Criterio PARE registrado: ${pareCriteria}`);
+    this.showToast(`Criterio PARE registrado: ${pareCriteria}`, { type: 'info' });
     }
 
     // Finalizar conversación
@@ -878,6 +878,61 @@ class PFASimulator {
         setTimeout(()=>{ div.remove(); }, 5000);
     }
 
+    // Sistema de notificaciones unificado (no bloqueante)
+    showToast(message, { type = 'info', duration = 3800 } = {}) {
+        const containerId = 'pfaToastContainer';
+        let container = document.getElementById(containerId);
+        if (!container) {
+            container = document.createElement('div');
+            container.id = containerId;
+            container.style.position = 'fixed';
+            container.style.bottom = '12px';
+            container.style.right = '12px';
+            container.style.display = 'flex';
+            container.style.flexDirection = 'column';
+            container.style.gap = '8px';
+            container.style.zIndex = '9999';
+            document.body.appendChild(container);
+        }
+        const toast = document.createElement('div');
+        toast.setAttribute('role','status');
+        toast.style.minWidth = '240px';
+        toast.style.maxWidth = '360px';
+        toast.style.padding = '10px 14px';
+        toast.style.borderRadius = '8px';
+        toast.style.fontSize = '14px';
+        toast.style.lineHeight = '1.4';
+        toast.style.fontWeight = '500';
+        toast.style.boxShadow = '0 4px 12px rgba(0,0,0,0.25)';
+        toast.style.display = 'flex';
+        toast.style.alignItems = 'flex-start';
+        toast.style.gap = '8px';
+        toast.style.position = 'relative';
+        const palette = {
+            info: ['#1e3a8a','#eff6ff'],
+            success: ['#065f46','#ecfdf5'],
+            warning: ['#92400e','#fffbeb'],
+            error: ['#7f1d1d','#fef2f2']
+        };
+        const [bg, fg] = palette[type] || palette.info;
+        toast.style.background = bg;
+        toast.style.color = fg;
+        toast.innerHTML = `<span style="flex:1">${message}</span><button aria-label="Cerrar" style="background:transparent;border:none;color:${fg};cursor:pointer;font-weight:bold;">×</button>`;
+        const closeBtn = toast.querySelector('button');
+        closeBtn.addEventListener('click', () => {
+            toast.style.opacity = '0';
+            setTimeout(()=>toast.remove(), 200);
+        });
+        container.appendChild(toast);
+        requestAnimationFrame(()=>{ toast.style.opacity = '1'; toast.style.transition = 'opacity .25s'; });
+        if (duration > 0) {
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                setTimeout(()=>toast.remove(), 250);
+            }, duration);
+        }
+    }
+
     // Mostrar recursos
     showResources() {
         this.showModal('resourcesDialog');
@@ -892,10 +947,10 @@ class PFASimulator {
         
         if (selected.length > 0) {
             navigator.clipboard.writeText(selected.join('\n')).then(() => {
-                alert('Recursos copiados al portapapeles');
+                this.showToast('Recursos copiados al portapapeles', { type: 'success' });
             });
         } else {
-            alert('No hay recursos seleccionados');
+            this.showToast('No hay recursos seleccionados', { type: 'warning' });
         }
     }
 
@@ -914,7 +969,7 @@ class PFASimulator {
             
             this.hideModal('resourcesDialog');
         } else {
-            alert('No hay recursos seleccionados');
+            this.showToast('No hay recursos seleccionados', { type: 'warning' });
         }
     }
 
@@ -1015,7 +1070,7 @@ class PFASimulator {
         const fileItems = document.querySelectorAll('#selectedFiles .file-item');
         
         if (fileItems.length === 0) {
-            alert('No hay archivos seleccionados para cargar');
+            this.showToast('No hay archivos seleccionados para cargar', { type: 'warning' });
             return;
         }
         
@@ -1037,7 +1092,7 @@ class PFASimulator {
                     if (index === fileItems.length - 1) {
                         setTimeout(() => {
                             this.hideModal('uploadDialog');
-                            alert('Archivos cargados exitosamente');
+                            this.showToast('Archivos cargados exitosamente', { type: 'success' });
                         }, 1000);
                     }
                 }, 1500);
@@ -1048,7 +1103,7 @@ class PFASimulator {
     // Exportar conversación
     exportConversation() {
         if (!this.conversationHistory.length) {
-            alert('No hay mensajes en la conversación para exportar');
+            this.showToast('No hay mensajes en la conversación para exportar', { type: 'warning' });
             return;
         }
         
@@ -1065,7 +1120,7 @@ class PFASimulator {
         a.click();
         URL.revokeObjectURL(url);
         
-        alert('Conversación exportada con éxito');
+        this.showToast('Conversación exportada con éxito', { type: 'success' });
     }
 
     // Finalizar feedback
@@ -1210,7 +1265,7 @@ function configureRandomSimulation() {
                         window.pfaSimulator.createTraumaStory().catch(error => {
                             console.error('Error al crear la historia:', error);
                             window.pfaSimulator.hideLoading();
-                            alert('Error al generar la simulación. Por favor, intente nuevamente.');
+                            window.pfaSimulator.showToast('Error al generar la simulación. Intente nuevamente.', { type: 'error' });
                         });
                     }
                 }
