@@ -403,6 +403,13 @@ class PFASimulator {
             throw new Error('API key con formato inválido.');
         }
         let response;
+        // Compatibilidad con prompts estructurados { system, user }
+        let systemPrompt = 'Eres un asistente experto en simulación médica.';
+        let userPrompt = prompt;
+        if (prompt && typeof prompt === 'object' && ('system' in prompt) && ('user' in prompt)) {
+            systemPrompt = prompt.system;
+            userPrompt = prompt.user;
+        }
         try {
             response = await fetch('https://api.openai.com/v1/chat/completions', {
                 method: 'POST',
@@ -413,8 +420,8 @@ class PFASimulator {
                 body: JSON.stringify({
                     model: this.selectedModel,
                     messages: [
-                        { role: 'system', content: 'Eres un asistente experto en simulación médica.' },
-                        { role: 'user', content: prompt }
+                        { role: 'system', content: systemPrompt },
+                        { role: 'user', content: userPrompt }
                     ],
                     max_tokens: 1000,
                     temperature: 0.7
@@ -441,19 +448,39 @@ class PFASimulator {
 
     // Generar respuesta de demostración (sin API)
     generateDemoResponse(prompt) {
-        const seed = prompt.length;
+        // Aceptar prompt como string o como objeto {system,user}
+        let base = '';
+        if (prompt && typeof prompt === 'object') {
+            base = (prompt.user || '') + ' ' + (prompt.system || '');
+        } else if (typeof prompt === 'string') {
+            base = prompt;
+        }
+        const seed = (base && base.length) ? base.length : 0;
         const sample = [
-            'Esto es una respuesta simulada de demostración para que puedas probar la interfaz sin consumir tu cuota.',
-            'El modo demo está activo: ninguna llamada real se hace a OpenAI y los contenidos son genéricos.',
-            'Puedes desactivar el modo demo cuando ingreses una API key válida para obtener contenido realista.'
+            'DEMOSTRACIÓN: Historia breve simulada. Paciente se comunica tras un evento traumático reciente y describe síntomas emocionales moderados. (Modo demo, sin IA real).',
+            'DEMOSTRACIÓN: Evaluación de triage simulada. Motivo: evento agudo reciente. Estado: alerta, ansioso leve. Síntoma principal: preocupación y temblor ocasional. (Modo demo).',
+            'DEMOSTRACIÓN: Respuesta generada localmente. Use una clave API válida para obtener contenido realista adaptado a la configuración.'
         ];
         return sample[seed % sample.length];
     }
 
     // Mostrar ventana de triage
     showTriageWindow(evaluation) {
-        document.getElementById('triageMessage').innerHTML = evaluation;
-    this.openModal('triageWindow');
+        const triageEl = document.getElementById('triageMessage');
+        if (triageEl) triageEl.innerHTML = evaluation || '(Sin evaluación)';
+        console.debug('[triage] Abriendo ventana de triage. Longitud evaluación:', (evaluation||'').length);
+        this.openModal('triageWindow');
+        // Fallback defensivo si modalManager falla: activar manualmente
+        const modal = document.getElementById('triageWindow');
+        if (modal && !modal.classList.contains('active')) {
+            // Esperar un frame para no interferir con modalManager si se inicializa tarde
+            requestAnimationFrame(()=>{
+                if (!modal.classList.contains('active')) {
+                    modal.classList.add('active');
+                    modal.setAttribute('aria-hidden','false');
+                }
+            });
+        }
     }
 
     // Aceptar caso
