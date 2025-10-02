@@ -803,103 +803,23 @@ class PFASimulator {
 
     // Crear gráficos
     createCharts() {
-        this.ensureChartsLibrary().then(() => {
-            this.createPatientChart();
-            this.createTechnicalChart();
-        }).catch(err => {
-            console.error('No se pudo cargar Chart.js', err);
-            this.showToast('No se pudieron generar los gráficos (Chart.js)', { type: 'error' });
-        });
-    }
-
-    // Lazy load de Chart.js solo cuando se requieren gráficos
-    ensureChartsLibrary() {
-        if (window.Chart) return Promise.resolve();
-        if (this._chartLoadingPromise) return this._chartLoadingPromise;
-        this._chartLoadingPromise = new Promise((resolve, reject) => {
-            const script = document.createElement('script');
-            script.src = 'https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js';
-            script.async = true;
-            script.onload = () => resolve();
-            script.onerror = () => reject(new Error('Fallo al cargar Chart.js'));
-            document.head.appendChild(script);
-        });
-        return this._chartLoadingPromise;
+        // Importación dinámica del módulo charts
+        if (this._chartsModulePromise) {
+            this._chartsModulePromise.then(mod => mod.renderCharts(this));
+            return;
+        }
+        this._chartsModulePromise = import('./charts.js')
+            .then(mod => {
+                mod.renderCharts(this);
+                return mod;
+            })
+            .catch(err => {
+                console.error('Fallo al cargar módulo de gráficos', err);
+                this.showToast('No se pudieron generar los gráficos', { type: 'error' });
+            });
     }
 
     // Crear gráfico del paciente
-    createPatientChart() {
-        const ctx = document.getElementById('patientChart').getContext('2d');
-        
-        const data = {
-            labels: ['Empatía', 'Respeto', 'Comunicación', 'Escucha', 'Seguridad', 'Comodidad'],
-            datasets: [{
-                label: 'Evaluación del Paciente',
-                data: this.getPatientValues(),
-                backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                borderColor: 'rgba(54, 162, 235, 1)',
-                borderWidth: 2
-            }]
-        };
-        
-        new Chart(ctx, {
-            type: 'radar',
-            data: data,
-            options: {
-                scales: {
-                    r: {
-                        beginAtZero: true,
-                        max: 5,
-                        ticks: {
-                            stepSize: 1
-                        }
-                    }
-                },
-                plugins: {
-                    legend: {
-                        display: false
-                    }
-                }
-            }
-        });
-    }
-
-    // Crear gráfico técnico
-    createTechnicalChart() {
-        const ctx = document.getElementById('technicalChart').getContext('2d');
-        
-        const data = {
-            labels: ['Escucha Activa', 'Reentrenamiento Respiratorio', 'Clasificación Necesidades', 'Derivación Redes', 'Psicoeducación'],
-            datasets: [{
-                label: 'Evaluación Técnica',
-                data: this.getTechnicalValues(),
-                backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                borderColor: 'rgba(255, 99, 132, 1)',
-                borderWidth: 2
-            }]
-        };
-        
-        new Chart(ctx, {
-            type: 'radar',
-            data: data,
-            options: {
-                scales: {
-                    r: {
-                        beginAtZero: true,
-                        max: 5,
-                        ticks: {
-                            stepSize: 1
-                        }
-                    }
-                },
-                plugins: {
-                    legend: {
-                        display: false
-                    }
-                }
-            }
-        });
-    }
 
     // Obtener valores del paciente
     getPatientValues() {
