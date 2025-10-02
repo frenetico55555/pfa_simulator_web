@@ -4,6 +4,30 @@
  * Propietario. Uso restringido educativo. No redistribuir ni crear derivados sin autorización escrita.
  * Ver LICENSE, TERMS_OF_USE.md y NOTICE.
  */
+// Factoría de prompts centralizada para mantener consistencia y facilitar futuras ediciones
+class PromptFactory {
+    screenwriter(config) {
+        const currentDate = new Date();
+        const twoWeeksAgo = new Date(currentDate.getTime() - 14 * 24 * 60 * 60 * 1000);
+        return `Eres un guionista experto en la generación de guiones para simulación médica. 
+        Crea una historia realista y detallada de un sobreviviente de trauma.
+        \nCRÍTICO: El evento traumático DEBE haber ocurrido entre hoy (${currentDate.toISOString().split('T')[0]}) 
+        y hace dos semanas (${twoWeeksAgo.toISOString().split('T')[0]}).\n\nDetalles del personaje:\n- Edad: ${config.age}\n- Género: ${config.gender}\n- Tipo de Trauma: ${config.traumaType}\n- Escenario del Trauma: ${config.traumaSetting}\n- Educación: ${config.education}\n- Estado Civil: ${config.civilStatus}\n- Red Social: ${config.network}\n- Vive Con: ${config.livesWith.join(', ')}\n- Hobbies: ${config.hobbies.join(', ')}\n- Rasgos de Personalidad: ${Object.entries(config.personalityValues).map(([k,v]) => `${k}: ${v}%`).join(', ')}\n- Condiciones Médicas: ${config.medicalConditions}\n- Condiciones Psiquiátricas: ${config.psychiatricConditions}\n- Medicamentos: ${config.medications}\n- Desafíos de PFA: ${config.challenges}\n\nIncluye reacciones psicológicas típicas peritraumáticas y describe el estado actual del sobreviviente.`;
+    }
+    triage(story) {
+        return `Eres una enfermera de triage en un servicio telefónico de urgencias.\nTu tarea es entregar a un colega un resumen corto, claro y humano del caso.\n\nUsa oraciones simples y menciona SOLO:\n• Motivo de la llamada (qué pasó y dónde)\n• Estado general del paciente (alerta, inquieto, dolorido…)\n• Síntoma clave o malestar principal (dolor, miedo, confusión…)\n\nNO incluyas saludos ni despedidas. Ve directo al grano con un tono conversacional y profesional.\n\nHistoria del caso:\n${story}`;
+    }
+    survivor(config, story, triageEvaluation, userMessage) {
+        return `Eres un sobreviviente de trauma con el siguiente perfil:\n\n- Edad: ${config.age}\n- Género: ${config.gender}\n- Tipo de trauma: ${config.traumaType}\n- Escenario del trauma: ${config.traumaSetting}\n- Nivel educativo: ${config.education}\n- Estado civil: ${config.civilStatus}\n- Red social: ${config.network}\n- Vive con: ${config.livesWith.join(', ')}\n- Hobbies: ${config.hobbies.join(', ')}\n- Rasgos de personalidad: ${Object.entries(config.personalityValues).map(([k,v]) => `${k}: ${v}%`).join(', ')}\n- Condiciones médicas: ${config.medicalConditions}\n- Condiciones psiquiátricas: ${config.psychiatricConditions}\n- Medicamentos: ${config.medications}\n- Desafíos de PFA: ${config.challenges}\n\nHistoria original: ${story}\nEvaluación de triage: ${triageEvaluation}\n\nResponde de forma auténtica y coherente con tu perfil a este mensaje: ${userMessage}\n\nNo eres el proveedor de PAP. Responde de forma auténtica y coherente con tu perfil.`;
+    }
+    patientFeedback(conversationHistory) {
+        return `Basado en esta conversación, genera un feedback desde la perspectiva del paciente:\n\n${JSON.stringify(conversationHistory)}\n\nFormato requerido:\nNIVEL GENERAL DE COMODIDAD: X/5\nEMPATÍA: X/5\nRESPETO: X/5\nCLARIDAD EN LA COMUNICACIÓN: X/5\nATENCIÓN Y ESCUCHA: X/5\nSEGURIDAD TRANSMITIDA: X/5\n\nCOMENTARIOS DETALLADOS:\n[Texto libre con la experiencia del paciente]`;
+    }
+    technicalFeedback(conversationHistory) {
+        return `Evalúa técnicamente esta conversación de primeros auxilios psicológicos:\n\n${JSON.stringify(conversationHistory)}\n\nEvalúa cada aspecto del protocolo ABCDE:\nA. Escucha Activa\nB. Reentrenamiento Respiratorio\nC. Clasificación de Necesidades\nD. Derivación a Redes\nE. Psicoeducación\n\nPara cada sección, proporciona:\n- Evaluación crítica\n- Ejemplos específicos\n- Sugerencias de mejora\n- NIVEL ALCANZADO: X/5`;
+    }
+}
+
 // Clase principal de la aplicación
 class PFASimulator {
     constructor() {
@@ -20,6 +44,7 @@ class PFASimulator {
         this.demoMode = urlParams.get('demo') === '1';
         this.apiKeyInput = null;
         this.apiKeyValid = false;
+    this.prompts = new PromptFactory();
         
         this.initializeEventListeners();
         this.setupSliders();
@@ -28,172 +53,157 @@ class PFASimulator {
 
     // Inicializar todos los event listeners
     initializeEventListeners() {
-        // Referencia al input de API key (puede no existir aún en etapas iniciales)
+        // NOTA (Refactor Step 2 - Phase 1): Esta función ahora solo orquesta métodos especializados
+        // que agrupan listeners por dominio funcional. Mantener esta capa delgada.
+        // Refactor Step 2 (Phase 1): modularización de listeners
         this.apiKeyInput = document.getElementById('apiKeyInput');
+        this.bindApiKeyEvents();
+        this.bindConfigEvents();
+        this.bindTriageEvents();
+        this.bindChatEvents();
+        this.bindResourceEvents();
+        this.bindUploadEvents();
+        this.bindPareEvents();
+        this.bindMenuEvents();
+        this.bindFeedbackEvents();
+        this.setupFileUpload();
+    }
+
+    // === Listeners: Secciones Modulares ===
+    /** API Key & demo mode */
+    bindApiKeyEvents() {
         if (this.apiKeyInput) {
             this.apiKeyInput.addEventListener('input', () => {
                 const value = this.apiKeyInput.value.trim();
-                if (value) {
-                    localStorage.setItem('pfa_api_key', value);
-                }
+                if (value) localStorage.setItem('pfa_api_key', value);
                 this.validateAndMarkAPIKey();
             });
         }
-
         const demoToggle = document.getElementById('demoModeToggle');
         if (demoToggle) {
             demoToggle.addEventListener('change', (e) => {
                 this.demoMode = e.target.checked;
-                if (this.demoMode) {
-                    this.showInfoMessage('Modo demo activado: se generarán respuestas simuladas sin usar la API.');
-                } else {
-                    this.showInfoMessage('Modo demo desactivado: se usarán respuestas reales (requiere API key).');
+                this.showInfoMessage(this.demoMode
+                    ? 'Modo demo activado: se generarán respuestas simuladas sin usar la API.'
+                    : 'Modo demo desactivado: se usarán respuestas reales (requiere API key).');
+            });
+        }
+    }
+
+    /** Configuración inicial de simulación */
+    bindConfigEvents() {
+        const difficultySlider = document.getElementById('difficultySlider');
+        if (difficultySlider) {
+            difficultySlider.addEventListener('input', (e) => {
+                const valueSpan = document.getElementById('difficultyValue');
+                if (valueSpan) valueSpan.textContent = e.target.value + '%';
+            });
+        }
+        const randomSimulation = document.getElementById('randomSimulation');
+        if (randomSimulation) {
+            randomSimulation.addEventListener('change', (e) => {
+                if (e.target.checked) this.randomizeSelections();
+            });
+        }
+        const advBtn = document.getElementById('advancedOptionsBtn');
+        if (advBtn) advBtn.addEventListener('click', () => this.showModal('advancedOptionsDialog'));
+        const closeAdv = document.getElementById('closeAdvancedOptions');
+        if (closeAdv) closeAdv.addEventListener('click', () => this.hideModal('advancedOptionsDialog'));
+        const startBtn = document.getElementById('startSimulationBtn');
+        if (startBtn) startBtn.addEventListener('click', () => this.startSimulation());
+        const randomPersonality = document.getElementById('randomizePersonality');
+        if (randomPersonality) randomPersonality.addEventListener('click', () => this.randomizePersonality());
+    }
+
+    /** Aceptación del caso (triage) */
+    bindTriageEvents() {
+        const acceptBtn = document.getElementById('acceptCaseBtn');
+        if (acceptBtn) acceptBtn.addEventListener('click', () => this.acceptCase());
+    }
+
+    /** Chat & controles inmediatos */
+    bindChatEvents() {
+        const sendBtn = document.getElementById('sendButton');
+        if (sendBtn) sendBtn.addEventListener('click', () => this.sendMessage());
+        const input = document.getElementById('inputText');
+        if (input) {
+            input.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    this.sendMessage();
                 }
             });
         }
-        // Configuración de simulación
-        document.getElementById('difficultySlider').addEventListener('input', (e) => {
-            document.getElementById('difficultyValue').textContent = e.target.value + '%';
-        });
+        const resourcesBtn = document.getElementById('resourcesBtn');
+        if (resourcesBtn) resourcesBtn.addEventListener('click', () => this.showModal('resourcesDialog'));
+        const pareBtn = document.getElementById('pareBtn');
+        if (pareBtn) pareBtn.addEventListener('click', () => this.showModal('pareDialog'));
+        const endBtn = document.getElementById('endConversationBtn');
+        if (endBtn) endBtn.addEventListener('click', () => this.endConversation());
+    }
 
-        document.getElementById('randomSimulation').addEventListener('change', (e) => {
-            if (e.target.checked) {
-                this.randomizeSelections();
-            }
-        });
+    /** Recursos (selección & aplicación) */
+    bindResourceEvents() {
+        const copyBtn = document.getElementById('copyResourcesBtn');
+        if (copyBtn) copyBtn.addEventListener('click', () => this.copySelectedResources());
+        const applyBtn = document.getElementById('applyResourcesBtn');
+        if (applyBtn) applyBtn.addEventListener('click', () => this.applyResources());
+    }
 
-        document.getElementById('advancedOptionsBtn').addEventListener('click', () => {
-            this.showModal('advancedOptionsDialog');
-        });
+    /** Subida de archivos */
+    bindUploadEvents() {
+        const uploadBtn = document.getElementById('uploadMaterialBtn');
+        if (uploadBtn) uploadBtn.addEventListener('click', () => this.showModal('uploadDialog'));
+        const cancelUpload = document.getElementById('cancelUploadBtn');
+        if (cancelUpload) cancelUpload.addEventListener('click', () => this.hideModal('uploadDialog'));
+        const confirmUpload = document.getElementById('confirmUploadBtn');
+        if (confirmUpload) confirmUpload.addEventListener('click', () => this.uploadFiles());
+    }
 
-        document.getElementById('closeAdvancedOptions').addEventListener('click', () => {
-            this.hideModal('advancedOptionsDialog');
-        });
+    /** Criterios PARE */
+    bindPareEvents() {
+        const confirmPare = document.getElementById('confirmPareBtn');
+        if (confirmPare) confirmPare.addEventListener('click', () => this.confirmPareCriteria());
+        const cancelPare = document.getElementById('cancelPareBtn');
+        if (cancelPare) cancelPare.addEventListener('click', () => this.hideModal('pareDialog'));
+    }
 
-        document.getElementById('startSimulationBtn').addEventListener('click', () => {
-            this.startSimulation();
-        });
+    /** Menú posterior a la conversación */
+    bindMenuEvents() {
+        const feedbackBtn = document.getElementById('feedbackBtn');
+        if (feedbackBtn) feedbackBtn.addEventListener('click', () => this.showFeedback());
+        const exportBtn = document.getElementById('exportBtn');
+        if (exportBtn) exportBtn.addEventListener('click', () => this.exportConversation());
+        const exitBtn = document.getElementById('exitBtn');
+        if (exitBtn) exitBtn.addEventListener('click', () => this.exitApplication());
+    }
 
-        // Personalidad aleatoria
-        document.getElementById('randomizePersonality').addEventListener('click', () => {
-            this.randomizePersonality();
-        });
+    /** Feedback (tabs, sliders, resumen) */
+    bindFeedbackEvents() {
+        const nextPatient = document.getElementById('nextToPatientBtn');
+        if (nextPatient) nextPatient.addEventListener('click', () => this.switchTab('patient'));
+        const nextTechnical = document.getElementById('nextToTechnicalBtn');
+        if (nextTechnical) nextTechnical.addEventListener('click', () => this.switchTab('technical'));
+        const showSummary = document.getElementById('showSummaryBtn');
+        if (showSummary) showSummary.addEventListener('click', () => this.showSummary());
 
-        // Ventana de triage
-        document.getElementById('acceptCaseBtn').addEventListener('click', () => {
-            this.acceptCase();
-        });
-
-        // Chat de simulación
-        document.getElementById('sendButton').addEventListener('click', () => {
-            this.sendMessage();
-        });
-
-        document.getElementById('inputText').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                this.sendMessage();
-            }
-        });
-
-        // Botones de control del chat
-        document.getElementById('resourcesBtn').addEventListener('click', () => {
-            this.showModal('resourcesDialog');
-        });
-
-        document.getElementById('pareBtn').addEventListener('click', () => {
-            this.showModal('pareDialog');
-        });
-
-        document.getElementById('endConversationBtn').addEventListener('click', () => {
-            this.endConversation();
-        });
-
-        // Ventana de recursos
-        document.getElementById('copyResourcesBtn').addEventListener('click', () => {
-            this.copySelectedResources();
-        });
-
-        document.getElementById('applyResourcesBtn').addEventListener('click', () => {
-            this.applyResources();
-        });
-
-        // Ventana de carga de archivos
-        document.getElementById('uploadMaterialBtn').addEventListener('click', () => {
-            this.showModal('uploadDialog');
-        });
-
-        document.getElementById('cancelUploadBtn').addEventListener('click', () => {
-            this.hideModal('uploadDialog');
-        });
-
-        document.getElementById('confirmUploadBtn').addEventListener('click', () => {
-            this.uploadFiles();
-        });
-
-        // Configurar funcionalidad de arrastrar y soltar
-        this.setupFileUpload();
-
-        // Criterios PARE
-        document.getElementById('confirmPareBtn').addEventListener('click', () => {
-            this.confirmPareCriteria();
-        });
-
-        document.getElementById('cancelPareBtn').addEventListener('click', () => {
-            this.hideModal('pareDialog');
-        });
-
-        // Ventana de menú
-        document.getElementById('feedbackBtn').addEventListener('click', () => {
-            this.showFeedback();
-        });
-
-        document.getElementById('exportBtn').addEventListener('click', () => {
-            this.exportConversation();
-        });
-
-        document.getElementById('exitBtn').addEventListener('click', () => {
-            this.exitApplication();
-        });
-
-        // Ventana de feedback
-        document.getElementById('nextToPatientBtn').addEventListener('click', () => {
-            this.switchTab('patient');
-        });
-
-        document.getElementById('nextToTechnicalBtn').addEventListener('click', () => {
-            this.switchTab('technical');
-        });
-
-        document.getElementById('showSummaryBtn').addEventListener('click', () => {
-            this.showSummary();
-        });
-
-        // Aspectos del paciente
+        // Sliders de aspectos del paciente
         document.querySelectorAll('.aspect-slider').forEach(slider => {
             slider.addEventListener('input', (e) => {
-                const value = e.target.value;
-                const aspect = e.target.dataset.aspect;
-                e.target.nextElementSibling.textContent = value;
+                e.target.nextElementSibling.textContent = e.target.value;
             });
         });
-
-        // Puntajes técnicos
+        // Sliders técnicos
         document.querySelectorAll('.score-slider').forEach(slider => {
             slider.addEventListener('input', (e) => {
-                const value = e.target.value;
-                e.target.nextElementSibling.textContent = value;
+                e.target.nextElementSibling.textContent = e.target.value;
             });
         });
-
-        // Resumen final
-        document.getElementById('backToFeedbackBtn').addEventListener('click', () => {
-            this.hideModal('summaryWindow');
-        });
-
-        document.getElementById('finishFeedbackBtn').addEventListener('click', () => {
-            this.finishFeedback();
-        });
+        // Navegación en resumen final
+        const backBtn = document.getElementById('backToFeedbackBtn');
+        if (backBtn) backBtn.addEventListener('click', () => this.hideModal('summaryWindow'));
+        const finishBtn = document.getElementById('finishFeedbackBtn');
+        if (finishBtn) finishBtn.addEventListener('click', () => this.finishFeedback());
     }
 
     // Inicializar persistencia de API key
@@ -236,14 +246,23 @@ class PFASimulator {
 
     // Configurar sliders de personalidad
     setupSliders() {
-        document.querySelectorAll('.personality-slider').forEach(slider => {
-            slider.addEventListener('input', (e) => {
-                const value = e.target.value;
-                const trait = e.target.dataset.trait;
-                e.target.parentElement.querySelector('.slider-value').textContent = value + '%';
+        // Usa helper genérico (0-100%)
+        this.bindValueMirroring('.personality-slider', (el) => {
+            const display = el.parentElement.querySelector('.slider-value');
+            return display;
+        }, v => v + '%');
+    }
+
+    // Helper genérico para reflejar valores de sliders u otros inputs numéricos
+    bindValueMirroring(selector, getDisplayEl = el => el.nextElementSibling, formatter = v => v) {
+        document.querySelectorAll(selector).forEach(el => {
+            el.addEventListener('input', (e) => {
+                const displayEl = getDisplayEl(e.target);
+                if (displayEl) displayEl.textContent = formatter(e.target.value);
             });
         });
     }
+    // === Fin helpers UI ===
 
     // Mostrar modal
     showModal(modalId) {
@@ -384,50 +403,10 @@ class PFASimulator {
     }
 
     // Crear prompt del guionista
-    createScreenwriterPrompt(config) {
-        const currentDate = new Date();
-        const twoWeeksAgo = new Date(currentDate.getTime() - 14 * 24 * 60 * 60 * 1000);
-        
-        return `Eres un guionista experto en la generación de guiones para simulación médica. 
-        Crea una historia realista y detallada de un sobreviviente de trauma.
-        
-        CRÍTICO: El evento traumático DEBE haber ocurrido entre hoy (${currentDate.toISOString().split('T')[0]}) 
-        y hace dos semanas (${twoWeeksAgo.toISOString().split('T')[0]}).
-        
-        Detalles del personaje:
-        - Edad: ${config.age}
-        - Género: ${config.gender}
-        - Tipo de Trauma: ${config.traumaType}
-        - Escenario del Trauma: ${config.traumaSetting}
-        - Educación: ${config.education}
-        - Estado Civil: ${config.civilStatus}
-        - Red Social: ${config.network}
-        - Vive Con: ${config.livesWith.join(', ')}
-        - Hobbies: ${config.hobbies.join(', ')}
-        - Rasgos de Personalidad: ${Object.entries(config.personalityValues).map(([k, v]) => `${k}: ${v}%`).join(', ')}
-        - Condiciones Médicas: ${config.medicalConditions}
-        - Condiciones Psiquiátricas: ${config.psychiatricConditions}
-        - Medicamentos: ${config.medications}
-        - Desafíos de PFA: ${config.challenges}
-        
-        Incluye reacciones psicológicas típicas peritraumáticas y describe el estado actual del sobreviviente.`;
-    }
+    createScreenwriterPrompt(config) { return this.prompts.screenwriter(config); }
 
     // Crear prompt de triage
-    createTriagePrompt(story) {
-        return `Eres una enfermera de triage en un servicio telefónico de urgencias.
-        Tu tarea es entregar a un colega un resumen corto, claro y humano del caso.
-        
-        Usa oraciones simples y menciona SOLO:
-        • Motivo de la llamada (qué pasó y dónde)
-        • Estado general del paciente (alerta, inquieto, dolorido…)
-        • Síntoma clave o malestar principal (dolor, miedo, confusión…)
-        
-        NO incluyas saludos ni despedidas. Ve directo al grano con un tono conversacional y profesional.
-        
-        Historia del caso:
-        ${story}`;
-    }
+    createTriagePrompt(story) { return this.prompts.triage(story); }
 
     // Llamar a OpenAI
     async callOpenAI(prompt) {
@@ -550,33 +529,7 @@ class PFASimulator {
     }
 
     // Crear prompt del superviviente
-    createSurvivorPrompt(userMessage) {
-        const config = this.patientCharacteristics;
-        
-        return `Eres un sobreviviente de trauma con el siguiente perfil:
-        
-        - Edad: ${config.age}
-        - Género: ${config.gender}
-        - Tipo de trauma: ${config.traumaType}
-        - Escenario del trauma: ${config.traumaSetting}
-        - Nivel educativo: ${config.education}
-        - Estado civil: ${config.civilStatus}
-        - Red social: ${config.network}
-        - Vive con: ${config.livesWith.join(', ')}
-        - Hobbies: ${config.hobbies.join(', ')}
-        - Rasgos de personalidad: ${Object.entries(config.personalityValues).map(([k, v]) => `${k}: ${v}%`).join(', ')}
-        - Condiciones médicas: ${config.medicalConditions}
-        - Condiciones psiquiátricas: ${config.psychiatricConditions}
-        - Medicamentos: ${config.medications}
-        - Desafíos de PFA: ${config.challenges}
-        
-        Historia original: ${this.story}
-        Evaluación de triage: ${this.triageEvaluation}
-        
-        Responde de forma auténtica y coherente con tu perfil a este mensaje: ${userMessage}
-        
-        No eres el proveedor de PAP. Responde de forma auténtica y coherente con tu perfil.`;
-    }
+    createSurvivorPrompt(userMessage) { return this.prompts.survivor(this.patientCharacteristics, this.story, this.triageEvaluation, userMessage); }
 
     // Agregar mensaje al chat
     addChatMessage(content, type) {
@@ -651,46 +604,10 @@ class PFASimulator {
     }
 
     // Generar feedback del paciente
-    async generatePatientFeedback() {
-        const prompt = `Basado en esta conversación, genera un feedback desde la perspectiva del paciente:
-        
-        ${JSON.stringify(this.conversationHistory)}
-        
-        Formato requerido:
-        NIVEL GENERAL DE COMODIDAD: X/5
-        EMPATÍA: X/5
-        RESPETO: X/5
-        CLARIDAD EN LA COMUNICACIÓN: X/5
-        ATENCIÓN Y ESCUCHA: X/5
-        SEGURIDAD TRANSMITIDA: X/5
-        
-        COMENTARIOS DETALLADOS:
-        [Texto libre con la experiencia del paciente]`;
-        
-        return await this.callOpenAI(prompt);
-    }
+    async generatePatientFeedback() { return await this.callOpenAI(this.prompts.patientFeedback(this.conversationHistory)); }
 
     // Generar feedback técnico
-    async generateTechnicalFeedback() {
-        const prompt = `Evalúa técnicamente esta conversación de primeros auxilios psicológicos:
-        
-        ${JSON.stringify(this.conversationHistory)}
-        
-        Evalúa cada aspecto del protocolo ABCDE:
-        A. Escucha Activa
-        B. Reentrenamiento Respiratorio
-        C. Clasificación de Necesidades
-        D. Derivación a Redes
-        E. Psicoeducación
-        
-        Para cada sección, proporciona:
-        - Evaluación crítica
-        - Ejemplos específicos
-        - Sugerencias de mejora
-        - NIVEL ALCANZADO: X/5`;
-        
-        return await this.callOpenAI(prompt);
-    }
+    async generateTechnicalFeedback() { return await this.callOpenAI(this.prompts.technicalFeedback(this.conversationHistory)); }
 
     // Actualizar feedback del paciente
     updatePatientFeedback(feedback) {
