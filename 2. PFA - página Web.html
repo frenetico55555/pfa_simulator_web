@@ -623,7 +623,7 @@
     <div id="loadingIndicator" class="loading-overlay hidden">
         <div class="loading-wait-wrapper">
             <div class="loading-visual">
-                <img src="assets/samu_centro.jpg" alt="Centro regulador de emergencias" class="waiting-image" />
+                <img src="assets/regulador.png" alt="Centro regulador de emergencias" class="waiting-image" id="waitingImage" />
                 <div class="overlay-gradient"></div>
             </div>
             <div class="loading-info">
@@ -670,6 +670,11 @@
                                 setTimeout(()=>{
                                     if(window.pfaSimulator){
                                         log('Inicialización detectada (PFASimulator listo).');
+                                        // Verificar carga de imagen
+                                        const img=document.getElementById('waitingImage');
+                                        if(img && !img.complete){
+                                            img.addEventListener('error',()=>{ log('Imagen de espera no cargó'); });
+                                        }
                                     } else {
                                         log('PFASimulator no presente tras carga. Intentando fallback.');
                                         attemptFallback();
