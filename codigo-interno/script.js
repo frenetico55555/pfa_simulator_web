@@ -64,11 +64,10 @@ class PFASimulator {
         this.bindTriageEvents();
         this.bindChatEvents();
         this.bindResourceEvents();
-        this.bindUploadEvents();
+    this.bindUploadEvents();
         this.bindPareEvents();
         this.bindMenuEvents();
         this.bindFeedbackEvents();
-        this.setupFileUpload();
     }
 
     // === Listeners: Secciones Modulares ===
@@ -155,7 +154,14 @@ class PFASimulator {
     /** Subida de archivos */
     bindUploadEvents() {
         const uploadBtn = document.getElementById('uploadMaterialBtn');
-        if (uploadBtn) uploadBtn.addEventListener('click', () => this.showModal('uploadDialog'));
+        if (uploadBtn) uploadBtn.addEventListener('click', () => {
+            this.showModal('uploadDialog');
+            // Inicializar drag & drop solo la primera vez que se abre
+            if (!this._uploadInitialized) {
+                this.setupFileUpload();
+                this._uploadInitialized = true;
+            }
+        });
         const cancelUpload = document.getElementById('cancelUploadBtn');
         if (cancelUpload) cancelUpload.addEventListener('click', () => this.hideModal('uploadDialog'));
         const confirmUpload = document.getElementById('confirmUploadBtn');
@@ -609,6 +615,30 @@ class PFASimulator {
             role: type === 'user' ? 'user' : 'assistant',
             content: content
         });
+
+        // Precalentamiento de prompts de feedback (cuando exista suficiente conversación)
+        this.maybePrewarmFeedback();
+    }
+
+    maybePrewarmFeedback() {
+        // Evitar repetir
+        if (this._feedbackPrewarmed) return;
+        if (this.conversationHistory.length < 6) return; // Umbral configurable
+        const run = () => {
+            try {
+                // Generar y cachear prompts para acelerar primera llamada real
+                this._prewarmedPatientPrompt = this.prompts.patientFeedback(this.conversationHistory);
+                this._prewarmedTechnicalPrompt = this.prompts.technicalFeedback(this.conversationHistory);
+                this._feedbackPrewarmed = true;
+                // Opcional: pequeña señal
+                // this.showToast('Feedback pre-calculado', { type: 'info', duration: 2000 });
+            } catch (e) { console.debug('Prewarm feedback falló', e); }
+        };
+        if ('requestIdleCallback' in window) {
+            requestIdleCallback(run, { timeout: 1200 });
+        } else {
+            setTimeout(run, 120);
+        }
     }
 
     // Verificar criterios PARE
@@ -671,10 +701,16 @@ class PFASimulator {
     }
 
     // Generar feedback del paciente
-    async generatePatientFeedback() { return await this.callOpenAI(this.prompts.patientFeedback(this.conversationHistory)); }
+    async generatePatientFeedback() {
+        const prompt = this._prewarmedPatientPrompt || this.prompts.patientFeedback(this.conversationHistory);
+        return await this.callOpenAI(prompt);
+    }
 
     // Generar feedback técnico
-    async generateTechnicalFeedback() { return await this.callOpenAI(this.prompts.technicalFeedback(this.conversationHistory)); }
+    async generateTechnicalFeedback() {
+        const prompt = this._prewarmedTechnicalPrompt || this.prompts.technicalFeedback(this.conversationHistory);
+        return await this.callOpenAI(prompt);
+    }
 
     // Actualizar feedback del paciente
     updatePatientFeedback(feedback) {
