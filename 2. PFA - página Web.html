@@ -303,7 +303,7 @@
         <div class="modal-content">
             <div class="triage-content">
                 <div class="triage-visual">
-                    <img src="assets/asignacion.png" alt="Operadora preparando asignación" class="triage-photo" id="triagePhoto" />
+                    <img src="assets/asignacion.png" alt="Operadora preparando asignación" class="triage-photo" id="triagePhoto" loading="lazy" />
                     <div class="nurse-badge"><i class="fas fa-user-nurse"></i></div>
                 </div>
                 <div class="triage-message" id="triageMessage"></div>
@@ -630,7 +630,7 @@
             <div class="loading-info">
                 <div class="spinner-ring" aria-hidden="true"></div>
                 <p id="loadingText">Esperando que la enfermera de triage le asigne un caso...</p>
-                <small class="loading-hint">... la enfermera de triage está recopilando información de la situación</small>
+                <small class="loading-hint">... la enfermera de triage está recopilando información de la situación.</small>
                 <div class="progress-shell" aria-label="Progreso de preparación" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
                     <div class="progress-bar" id="triageProgressBar"></div>
                 </div>
@@ -675,6 +675,16 @@
                                         const img=document.getElementById('waitingImage');
                                         if(img && !img.complete){
                                             img.addEventListener('error',()=>{ log('Imagen de espera no cargó'); });
+                                        }
+                                        // Preload triage assignment image
+                                        const triagePhoto=document.getElementById('triagePhoto');
+                                        if(triagePhoto){
+                                            if(triagePhoto.complete){ triagePhoto.classList.add('loaded'); }
+                                            else {
+                                                triagePhoto.style.opacity='0';
+                                                triagePhoto.addEventListener('load',()=>{ triagePhoto.style.transition='opacity .6s ease'; triagePhoto.style.opacity='1'; triagePhoto.classList.add('loaded'); });
+                                                triagePhoto.addEventListener('error',()=>{ log('triagePhoto no se pudo cargar (assets/asignacion.png)'); triagePhoto.style.opacity='.25'; triagePhoto.style.background='#1e293b'; });
+                                            }
                                         }
                                     } else {
                                         log('PFASimulator no presente tras carga. Intentando fallback.');
