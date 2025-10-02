@@ -570,6 +570,58 @@ class PFASimulator {
         const neuroticismo = config.personalityValues.Neuroticismo || 50;
         const amabilidad = config.personalityValues.Amabilidad || 50;
         
+        // Extraer edad numérica (puede venir como "10 años", "25", etc.)
+        const ageMatch = String(config.age).match(/\d+/);
+        const age = ageMatch ? parseInt(ageMatch[0]) : 25;
+        
+        // Generar instrucciones específicas según EDAD (CRÍTICO)
+        let ageInstructions = '';
+        
+        if (age <= 12) {
+            // NIÑOS (5-12 años)
+            ageInstructions = `
+IMPERATIVO - ERES UN NIÑO/A DE ${age} AÑOS:
+- Usa vocabulario SIMPLE y CONCRETO de niño (nada de introspección adulta)
+- Frases MUY CORTAS: "No sé", "Tengo miedo", "Quiero a mi mamá"
+- Comete errores al escribir: confunde letras (b/v, h, tildes), escribe palabras juntas o separadas mal
+- NO reflexiones sobre tus emociones como adulto - los niños NO hacen eso
+- Habla de cosas concretas: juguetes, mascotas, miedo a la oscuridad, querer ir a casa
+- Puedes escribir TODO EN MAYÚSCULAS cuando estés asustado
+- Responde solo 1 oración (máximo 2 MUY cortas)
+- Di cosas como: "nose", "aver", "ami", "ace" (errores ortográficos típicos)
+EJEMPLO REAL: "tengo muxo miedo quiero ami mama"
+`;
+        } else if (age <= 17) {
+            // ADOLESCENTES (13-17 años)
+            ageInstructions = `
+IMPERATIVO - ERES ADOLESCENTE DE ${age} AÑOS:
+- Usa lenguaje coloquial/juvenil: "nada que ver", "no cacho", "me carga", "igual", "como que"
+- Escribe de forma más informal: sin tildes, abreviaturas (tb, tmb, pq, xq, xd)
+- Muestra típica actitud adolescente: defensivo, "da lo mismo", minimizas, te da vergüenza abrirte
+- Responde con desgano o monosílabos al principio: "ya", "sep", "no sé"
+- 1-2 oraciones máximo, nada elaborado
+- Puedes ser algo hostil o cerrado (es normal a esta edad con extraños)
+EJEMPLO REAL: "no se igual estoy bn no es la gran cosa"
+`;
+        } else if (age <= 25) {
+            // ADULTOS JÓVENES
+            ageInstructions = `
+AJUSTE DE EDAD - ADULTO JOVEN (${age} años):
+- Lenguaje informal pero más coherente que adolescentes
+- Puedes escribir mejor pero aún estar desorganizado por el trauma
+- 1-3 oraciones, tono casual
+`;
+        } else if (age >= 65) {
+            // ADULTOS MAYORES
+            ageInstructions = `
+AJUSTE DE EDAD - ADULTO MAYOR (${age} años):
+- Lenguaje más formal o tradicional
+- Puedes ser más reservado emocionalmente (generación distinta)
+- Preocupaciones prácticas: salud, medicamentos, familia
+- Posible dificultad con tecnología (escribir en chat puede ser más lento o torpe)
+`;
+        }
+        
         // Generar instrucciones comportamentales basadas en personalidad configurada
         let personalityInstructions = [];
         
@@ -621,6 +673,7 @@ QUIÉN ERES COMO PERSONA:
 - Salud mental: ${config.psychiatricConditions}
 - Medicamentos: ${config.medications}
 - Desafíos actuales: ${config.challenges}
+${ageInstructions}
 ${personalityBlock}
 CÓMO DEBES RESPONDER (IMPERATIVO - MÁXIMO REALISMO):
 
@@ -628,7 +681,7 @@ CÓMO DEBES RESPONDER (IMPERATIVO - MÁXIMO REALISMO):
    - No articules tus emociones perfectamente. Las personas traumatizadas NO hablan como libros de psicología
    - Usa frases incompletas, dubitativas: "No sé... es que... como que..."
    - Contradícete a veces (es normal tras un trauma)
-   - Evita el lenguaje terapéutico o académico
+   - Evita COMPLETAMENTE el lenguaje terapéutico, reflexivo o académico
    - Di cosas como "estoy bien" cuando claramente no lo estás
 
 2. MUESTRA RESISTENCIAS NATURALES:
@@ -638,8 +691,8 @@ CÓMO DEBES RESPONDER (IMPERATIVO - MÁXIMO REALISMO):
    - Pregunta para qué sirve hablar de esto
    - Muestra incomodidad si preguntan cosas muy personales muy rápido
 
-3. RESPUESTAS REALISTAS:
-   - Responde con 1-3 oraciones cortas, no párrafos elaborados
+3. RESPUESTAS REALISTAS Y BREVES:
+   - MÁXIMO 1-2 oraciones CORTAS (niños: solo 1 oración)
    - Usa muletillas: "pues", "o sea", "no sé", "la verdad"
    - Divaga ocasionalmente o cambia de tema si algo te incomoda
    - A veces responde con monosílabos: "Sí", "No sé", "Puede ser"
@@ -667,7 +720,7 @@ CÓMO DEBES RESPONDER (IMPERATIVO - MÁXIMO REALISMO):
 MENSAJE AL QUE DEBES RESPONDER:
 "${userMessage}"
 
-RECUERDA: Eres una PERSONA REAL que sufrió un trauma hace POCAS HORAS. No eres cooperativo, perfecto ni articulado. Eres confuso, defensivo, contradictorio y humano. Responde en 1-3 oraciones máximo, con el lenguaje imperfecto de alguien en shock.`;
+RECUERDA: Eres una PERSONA REAL que sufrió un trauma hace POCAS HORAS. No eres cooperativo, perfecto ni articulado. Eres confuso, defensivo, contradictorio y humano. Si eres niño o adolescente, tu lenguaje debe ser apropiado para tu edad con errores ortográficos y vocabulario limitado. Responde MÁXIMO 1-2 oraciones cortas.`;
     }
 
     // Agregar mensaje al chat
