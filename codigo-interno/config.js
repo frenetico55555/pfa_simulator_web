@@ -7,7 +7,8 @@
 window.PFA_CONFIG = {
     // Configuración de OpenAI
     openai: {
-        defaultModel: 'gpt-5-mini',
+        // Modelo de OpenAI a utilizar
+    defaultModel: 'gpt-4o-mini',
         maxTokens: 1000,
         temperature: 0.7,
         apiEndpoint: 'https://api.openai.com/v1/chat/completions'
