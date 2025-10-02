@@ -131,6 +131,11 @@ body {
 .loading-hint { color:#475569; font-size:.75rem; letter-spacing:.5px; text-transform:uppercase; font-weight:500; }
 .spinner-ring { width:40px; height:40px; border:5px solid #dbeafe; border-top-color: var(--color-primary); border-radius:50%; animation: spin 1s linear infinite; }
 @keyframes spin { to { transform:rotate(360deg); } }
+/* Progress bar */
+.progress-shell { width:100%; height:10px; background:linear-gradient(90deg,#e2e8f0,#f1f5f9); border-radius:6px; overflow:hidden; position:relative; margin-top:4px; box-shadow:inset 0 0 0 1px rgba(0,0,0,.06); }
+.progress-bar { height:100%; width:0%; background:linear-gradient(90deg,#2563eb,#3b82f6,#60a5fa); background-size:200% 100%; animation: progressSheen 2.4s linear infinite; box-shadow:0 0 0 1px rgba(255,255,255,.4),0 2px 6px -1px rgba(0,0,0,.4); transition: width .4s ease; }
+@keyframes progressSheen { 0%{background-position:0 0;} 100%{background-position: -200% 0;} }
+.progress-stage { color:#334155; font-size:.7rem; font-weight:600; letter-spacing:.6px; text-transform:uppercase; opacity:.85; }
 
 
 /* ===== MODALES ===== */

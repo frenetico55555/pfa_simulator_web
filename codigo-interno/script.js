@@ -362,19 +362,34 @@ class PFASimulator {
         
         // Prompt para el guionista
         const screenwriterPrompt = this.createScreenwriterPrompt(config);
+        // Barra de progreso simulada (dos fases)
+        const bar = document.getElementById('triageProgressBar');
+        const stageLabel = document.getElementById('progressStageLabel');
+        const shell = document.querySelector('.progress-shell');
+        const setProgress = (pct, label) => {
+            if (bar) bar.style.width = pct + '%';
+            if (stageLabel && label) stageLabel.textContent = label;
+            if (shell) shell.setAttribute('aria-valuenow', pct);
+        };
+        setProgress(8, 'Inicializando canal');
         
         try {
             // Generar historia con GPT
+            setProgress(22, 'Generando historia');
             const story = await this.callOpenAI(screenwriterPrompt);
             this.story = story;
+            setProgress(55, 'Historia lista');
             
             // Generar evaluación de triage
+            setProgress(65, 'Derivando a triage');
             const triagePrompt = this.createTriagePrompt(story);
             const triageEvaluation = await this.callOpenAI(triagePrompt);
             this.triageEvaluation = triageEvaluation;
+            setProgress(90, 'Finalizando');
             
             this.hideLoading();
             this.showTriageWindow(triageEvaluation);
+            setTimeout(()=> setProgress(100, 'Caso listo'), 150);
             
         } catch (error) {
             console.error('Error en la generación:', error);
