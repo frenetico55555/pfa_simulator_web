@@ -4,8 +4,8 @@
  * Propietario. Uso restringido educativo. No redistribuir ni crear derivados sin autorización escrita.
  * Ver LICENSE, TERMS_OF_USE.md y NOTICE.
  */
-// Factoría de prompts centralizada para mantener consistencia y facilitar futuras ediciones
-class PromptFactory {
+// Factoría de prompts LEGACY (simple, solo strings). La nueva estructura vive en promptFactory.js
+class LegacyPromptFactory {
     screenwriter(config) {
         const currentDate = new Date();
         const twoWeeksAgo = new Date(currentDate.getTime() - 14 * 24 * 60 * 60 * 1000);
@@ -44,7 +44,7 @@ class PFASimulator {
         this.demoMode = urlParams.get('demo') === '1';
         this.apiKeyInput = null;
         this.apiKeyValid = false;
-        this.prompts = new PromptFactory();
+    this.prompts = new LegacyPromptFactory();
         // Cache ligero de elementos (lazy fill)
         this._elCache = new Map();
         // Enlazar eventos críticos inmediatamente tras instanciación (botón iniciar y API key)
@@ -349,7 +349,7 @@ class PFASimulator {
             this.updateLoadingText('Generando historia del caso (1/2)...');
             // Nuevo flujo usando PromptFactory si disponible
             let story;
-            if (window.promptFactory instanceof window.PromptFactory) {
+            if (window.promptFactory && typeof window.promptFactory.buildStoryPrompt === 'function') {
                 const { system, user } = await window.promptFactory.buildStoryPrompt({
                     traumaType: config.traumaType,
                     traumaSetting: config.traumaSetting,
@@ -364,7 +364,7 @@ class PFASimulator {
             this.story = story;
             this.updateLoadingText('Generando evaluación de triage (2/2)...');
             let triageEvaluation;
-            if (window.promptFactory instanceof window.PromptFactory) {
+            if (window.promptFactory && typeof window.promptFactory.buildTriagePrompt === 'function') {
                 const { system, user } = await window.promptFactory.buildTriagePrompt({
                     storySnippet: story.slice(0, 550) // pequeño extracto para triage
                 });
@@ -398,13 +398,19 @@ class PFASimulator {
     _initPromptFactory() {
         if (window.promptFactoryInitialized) return;
         if (window.PromptFactory) {
-            window.promptFactory = new window.PromptFactory();
-            window.promptFactory.load().then(()=>{
-                console.log('[PromptFactory] versión', window.promptFactory.version, 'cargada');
-            }).catch(err=>{
-                console.warn('[PromptFactory] Fallback activado', err);
-            });
-            window.promptFactoryInitialized = true;
+            try {
+                window.promptFactory = new window.PromptFactory();
+                window.promptFactory.load().then(()=>{
+                    console.log('[PromptFactory][structured] versión', window.promptFactory.version, 'cargada');
+                }).catch(err=>{
+                    console.warn('[PromptFactory][structured] Fallback activado', err);
+                });
+                window.promptFactoryInitialized = true;
+            } catch(e){
+                console.warn('[PromptFactory][structured] error al instanciar', e);
+            }
+        } else {
+            console.warn('[PromptFactory][structured] no disponible aún al inicializar');
         }
     }
 
@@ -539,7 +545,7 @@ class PFASimulator {
         try {
             // Generar respuesta del superviviente (nuevo sistema si disponible)
             let survivorPrompt;
-            if (window.promptFactory instanceof window.PromptFactory) {
+            if (window.promptFactory && typeof window.promptFactory.buildSurvivorPrompt === 'function') {
                 survivorPrompt = await window.promptFactory.buildSurvivorPrompt({
                     config: this.patientCharacteristics,
                     story: this.story,
@@ -675,7 +681,7 @@ class PFASimulator {
 
     // Generar feedback del paciente
     async generatePatientFeedback() {
-        if (window.promptFactory instanceof window.PromptFactory) {
+    if (window.promptFactory && typeof window.promptFactory.buildPatientFeedbackPrompt === 'function') {
             const { system, user } = await window.promptFactory.buildPatientFeedbackPrompt({
                 config: this.patientCharacteristics,
                 history: this.conversationHistory,
@@ -689,7 +695,7 @@ class PFASimulator {
 
     // Generar feedback técnico
     async generateTechnicalFeedback() {
-        if (window.promptFactory instanceof window.PromptFactory) {
+    if (window.promptFactory && typeof window.promptFactory.buildTechnicalFeedbackPrompt === 'function') {
             const pareDetectedList = Array.from(this.pareCriteriaDetected || []);
             const studentReportedList = Array.from(this.pareReportedByStudent || []);
             const { system, user } = await window.promptFactory.buildTechnicalFeedbackPrompt({
