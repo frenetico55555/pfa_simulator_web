@@ -4,8 +4,8 @@
  * Propietario. Uso restringido educativo. No redistribuir ni crear derivados sin autorización escrita.
  * Ver LICENSE, TERMS_OF_USE.md y NOTICE.
  */
-// Factoría de prompts LEGACY (simple, solo strings). La nueva estructura vive en promptFactory.js
-class LegacyPromptFactory {
+// Factoría de prompts centralizada para mantener consistencia y facilitar futuras ediciones
+class PromptFactory {
     screenwriter(config) {
         const currentDate = new Date();
         const twoWeeksAgo = new Date(currentDate.getTime() - 14 * 24 * 60 * 60 * 1000);
@@ -44,25 +44,8 @@ class PFASimulator {
         this.demoMode = urlParams.get('demo') === '1';
         this.apiKeyInput = null;
         this.apiKeyValid = false;
-    this.prompts = new LegacyPromptFactory();
+        this.prompts = new PromptFactory();
         // Cache ligero de elementos (lazy fill)
-        this._elCache = new Map();
-        // Enlazar eventos críticos inmediatamente tras instanciación (botón iniciar y API key)
-        requestAnimationFrame(()=>{
-            const startBtn = document.getElementById('startSimulationBtn');
-            if (startBtn && !startBtn._pfaBound) {
-                startBtn.addEventListener('click', () => this.startSimulation());
-                startBtn._pfaBound = true;
-            }
-            // API key input
-            this.apiKeyInput = document.getElementById('apiKeyInput');
-            if (this.apiKeyInput && !this.apiKeyInput._pfaBound){
-                this.apiKeyInput.addEventListener('input', ()=> this.validateAndMarkAPIKey());
-                this.apiKeyInput._pfaBound = true;
-            }
-            // Auto inicializar persistencia
-            this.initAPIKeyPersistence();
-        });
     }
 
     // Delegación a modalManager (compat)
@@ -281,11 +264,7 @@ class PFASimulator {
         this.patientCharacteristics = config;
         
     this.closeModal('simulationConfigWindow');
-        const urlParams = new URLSearchParams(window.location.search);
-        const immersive = urlParams.get('mode')==='student' && urlParams.get('autostart')==='true';
-        const loadingMsg = immersive ? 'Esperando que la enfermera de triage le asigne un caso...' : 'Generando simulación (historia y triage)...';
-        console.debug('[autostart] startSimulation -> mostrando overlay con texto:', loadingMsg);
-        this.showLoading(loadingMsg);
+        this.showLoading('Preparando simulación...');
         // Diferir generación para liberar el hilo y permitir pintar UI
         this.scheduleTraumaStoryGeneration();
     }
@@ -335,26 +314,6 @@ class PFASimulator {
     // Programar generación diferida (idle o pequeño timeout)
     scheduleTraumaStoryGeneration() {
         const run = () => this.createTraumaStoryProgressive();
-        // Si estamos en autostart estudiante, esperar brevemente a que promptFactory cargue
-        const params = new URLSearchParams(location.search);
-        const waitStructured = params.get('mode')==='student' && params.get('autostart')==='true';
-        if (waitStructured) {
-            let attempts = 0;
-            const maxAttempts = 25; // ~2.5s con 100ms
-            const poll = () => {
-                attempts++;
-                if (window.promptFactory && typeof window.promptFactory.buildStoryPrompt === 'function') {
-                    console.debug('[autostart] PromptFactory structured lista tras', attempts, 'intentos');
-                    run();
-                } else if (attempts < maxAttempts) {
-                    setTimeout(poll, 100);
-                } else {
-                    console.warn('[autostart] PromptFactory no disponible tras espera. Continuando con legacy.');
-                    run();
-                }
-            };
-            return poll();
-        }
         if ('requestIdleCallback' in window) {
             requestIdleCallback(run, { timeout: 1500 });
         } else {
@@ -367,45 +326,17 @@ class PFASimulator {
         const config = this.patientCharacteristics;
         try {
             const t0 = performance.now();
-            console.debug('[story] fase 1 inicio');
             this.updateLoadingText('Generando historia del caso (1/2)...');
-            // Nuevo flujo usando PromptFactory si disponible
-            let story;
-            if (window.promptFactory && typeof window.promptFactory.buildStoryPrompt === 'function') {
-                console.debug('[story] usando structured PromptFactory para story');
-                const { system, user } = await window.promptFactory.buildStoryPrompt({
-                    traumaType: config.traumaType,
-                    traumaSetting: config.traumaSetting,
-                    age: config.age,
-                    gender: config.gender,
-                    difficulty: config.difficulty || 50
-                });
-                story = await this.callOpenAI({ system, user });
-            } else {
-                console.debug('[story] usando legacy prompt');
-                story = await this.callOpenAI(this.createScreenwriterPrompt(config));
-            }
+            const story = await this.callOpenAI(this.createScreenwriterPrompt(config));
             this.story = story;
-            console.debug('[story] fase 1 completada, longitud historia:', story.length);
             this.updateLoadingText('Generando evaluación de triage (2/2)...');
-            let triageEvaluation;
-            if (window.promptFactory && typeof window.promptFactory.buildTriagePrompt === 'function') {
-                console.debug('[triage] usando structured PromptFactory');
-                const { system, user } = await window.promptFactory.buildTriagePrompt({
-                    storySnippet: story.slice(0, 550) // pequeño extracto para triage
-                });
-                triageEvaluation = await this.callOpenAI({ system, user });
-            } else {
-                console.debug('[triage] usando legacy prompt');
-                triageEvaluation = await this.callOpenAI(this.createTriagePrompt(story));
-            }
+            const triageEvaluation = await this.callOpenAI(this.createTriagePrompt(story));
             this.triageEvaluation = triageEvaluation;
             const total = (performance.now() - t0).toFixed(0);
             this._perfStoryMs = total;
             this.hideLoading();
             this.showTriageWindow(triageEvaluation);
             console.info('[perf] story+triage ms:', total);
-            console.debug('[triage] longitud evaluación:', (triageEvaluation||'').length);
         } catch (error) {
             console.error('Error en la generación:', error);
             this.hideLoading();
@@ -422,26 +353,6 @@ class PFASimulator {
     // Crear prompt de triage
     createTriagePrompt(story) { return this.prompts.triage(story); }
 
-    // Inicialización extendida para PromptFactory
-    _initPromptFactory() {
-        if (window.promptFactoryInitialized) return;
-        if (window.PromptFactory) {
-            try {
-                window.promptFactory = new window.PromptFactory();
-                window.promptFactory.load().then(()=>{
-                    console.log('[PromptFactory][structured] versión', window.promptFactory.version, 'cargada');
-                }).catch(err=>{
-                    console.warn('[PromptFactory][structured] Fallback activado', err);
-                });
-                window.promptFactoryInitialized = true;
-            } catch(e){
-                console.warn('[PromptFactory][structured] error al instanciar', e);
-            }
-        } else {
-            console.warn('[PromptFactory][structured] no disponible aún al inicializar');
-        }
-    }
-
     // Llamar a OpenAI
     async callOpenAI(prompt) {
         // DEMO MODE: retorna una respuesta simulada sin llamar a la API real
@@ -457,13 +368,6 @@ class PFASimulator {
             throw new Error('API key con formato inválido.');
         }
         let response;
-        // Compatibilidad con prompts estructurados { system, user }
-        let systemPrompt = 'Eres un asistente experto en simulación médica.';
-        let userPrompt = prompt;
-        if (prompt && typeof prompt === 'object' && ('system' in prompt) && ('user' in prompt)) {
-            systemPrompt = prompt.system;
-            userPrompt = prompt.user;
-        }
         try {
             response = await fetch('https://api.openai.com/v1/chat/completions', {
                 method: 'POST',
@@ -474,8 +378,8 @@ class PFASimulator {
                 body: JSON.stringify({
                     model: this.selectedModel,
                     messages: [
-                        { role: 'system', content: systemPrompt },
-                        { role: 'user', content: userPrompt }
+                        { role: 'system', content: 'Eres un asistente experto en simulación médica.' },
+                        { role: 'user', content: prompt }
                     ],
                     max_tokens: 1000,
                     temperature: 0.7
@@ -502,39 +406,19 @@ class PFASimulator {
 
     // Generar respuesta de demostración (sin API)
     generateDemoResponse(prompt) {
-        // Aceptar prompt como string o como objeto {system,user}
-        let base = '';
-        if (prompt && typeof prompt === 'object') {
-            base = (prompt.user || '') + ' ' + (prompt.system || '');
-        } else if (typeof prompt === 'string') {
-            base = prompt;
-        }
-        const seed = (base && base.length) ? base.length : 0;
+        const seed = prompt.length;
         const sample = [
-            'DEMOSTRACIÓN: Historia breve simulada. Paciente se comunica tras un evento traumático reciente y describe síntomas emocionales moderados. (Modo demo, sin IA real).',
-            'DEMOSTRACIÓN: Evaluación de triage simulada. Motivo: evento agudo reciente. Estado: alerta, ansioso leve. Síntoma principal: preocupación y temblor ocasional. (Modo demo).',
-            'DEMOSTRACIÓN: Respuesta generada localmente. Use una clave API válida para obtener contenido realista adaptado a la configuración.'
+            'Esto es una respuesta simulada de demostración para que puedas probar la interfaz sin consumir tu cuota.',
+            'El modo demo está activo: ninguna llamada real se hace a OpenAI y los contenidos son genéricos.',
+            'Puedes desactivar el modo demo cuando ingreses una API key válida para obtener contenido realista.'
         ];
         return sample[seed % sample.length];
     }
 
     // Mostrar ventana de triage
     showTriageWindow(evaluation) {
-        const triageEl = document.getElementById('triageMessage');
-        if (triageEl) triageEl.innerHTML = evaluation || '(Sin evaluación)';
-        console.debug('[triage] Abriendo ventana de triage. Longitud evaluación:', (evaluation||'').length);
-        this.openModal('triageWindow');
-        // Fallback defensivo si modalManager falla: activar manualmente
-        const modal = document.getElementById('triageWindow');
-        if (modal && !modal.classList.contains('active')) {
-            // Esperar un frame para no interferir con modalManager si se inicializa tarde
-            requestAnimationFrame(()=>{
-                if (!modal.classList.contains('active')) {
-                    modal.classList.add('active');
-                    modal.setAttribute('aria-hidden','false');
-                }
-            });
-        }
+        document.getElementById('triageMessage').innerHTML = evaluation;
+    this.openModal('triageWindow');
     }
 
     // Aceptar caso
@@ -571,20 +455,8 @@ class PFASimulator {
         this.showLoading('Pensando...');
 
         try {
-            // Generar respuesta del superviviente (nuevo sistema si disponible)
-            let survivorPrompt;
-            if (window.promptFactory && typeof window.promptFactory.buildSurvivorPrompt === 'function') {
-                survivorPrompt = await window.promptFactory.buildSurvivorPrompt({
-                    config: this.patientCharacteristics,
-                    story: this.story,
-                    triage: this.triageEvaluation,
-                    history: this.conversationHistory,
-                    lastUserMessage: message,
-                    maxHistory: 10
-                });
-            } else {
-                survivorPrompt = this.createSurvivorPrompt(message);
-            }
+            // Generar respuesta del superviviente
+            const survivorPrompt = this.createSurvivorPrompt(message);
             const response = await this.callOpenAI(survivorPrompt);
             
             // Agregar respuesta al chat
@@ -709,31 +581,12 @@ class PFASimulator {
 
     // Generar feedback del paciente
     async generatePatientFeedback() {
-    if (window.promptFactory && typeof window.promptFactory.buildPatientFeedbackPrompt === 'function') {
-            const { system, user } = await window.promptFactory.buildPatientFeedbackPrompt({
-                config: this.patientCharacteristics,
-                history: this.conversationHistory,
-                maxHistory: 20
-            });
-            return await this.callOpenAI({ system, user });
-        }
         const prompt = this._prewarmedPatientPrompt || this.prompts.patientFeedback(this.conversationHistory);
         return await this.callOpenAI(prompt);
     }
 
     // Generar feedback técnico
     async generateTechnicalFeedback() {
-    if (window.promptFactory && typeof window.promptFactory.buildTechnicalFeedbackPrompt === 'function') {
-            const pareDetectedList = Array.from(this.pareCriteriaDetected || []);
-            const studentReportedList = Array.from(this.pareReportedByStudent || []);
-            const { system, user } = await window.promptFactory.buildTechnicalFeedbackPrompt({
-                history: this.conversationHistory,
-                pareDetectedList,
-                studentReportedList,
-                maxHistory: 24
-            });
-            return await this.callOpenAI({ system, user });
-        }
         const prompt = this._prewarmedTechnicalPrompt || this.prompts.technicalFeedback(this.conversationHistory);
         return await this.callOpenAI(prompt);
     }
@@ -952,9 +805,6 @@ class PFASimulator {
         if (ind) {
             ind.classList.add('hidden');
             ind.setAttribute('aria-hidden','true');
-            console.debug('[loading] ocultado overlay');
-        } else {
-            console.warn('[loading] overlay no encontrado al intentar ocultar');
         }
     }
 
@@ -1347,22 +1197,11 @@ function configureRandomSimulation() {
                         
                         // Mostrar loading y crear historia directamente
                         window.pfaSimulator.showLoading('Esperando que la enfermera de triage le asigne un caso...');
-                        console.debug('[autostart] Loading mostrado, generando historia+triage');
                         
                         window.pfaSimulator.createTraumaStory().catch(error => {
                             console.error('Error al crear la historia:', error);
                             window.pfaSimulator.hideLoading();
                             window.pfaSimulator.showToast('Error al generar la simulación. Intente nuevamente.', { type: 'error' });
-                        });
-                    } else {
-                        console.warn('[autostart] providerName vacío - inyectando nombre genérico');
-                        window.pfaSimulator.providerName = 'Proveedor Anónimo';
-                        window.pfaSimulator.patientCharacteristics = { ...config, providerName: 'Proveedor Anónimo' };
-                        window.pfaSimulator.showLoading('Esperando que la enfermera de triage le asigne un caso...');
-                        window.pfaSimulator.createTraumaStory().catch(error => {
-                            console.error('Error al crear la historia (fallback nombre):', error);
-                            window.pfaSimulator.hideLoading();
-                            window.pfaSimulator.showToast('Error al generar la simulación (fallback).', { type: 'error' });
                         });
                     }
                 }
@@ -1387,9 +1226,6 @@ function configureRandomSimulation() {
         try {
             if (!window.pfaSimulator) {
                 window.pfaSimulator = new PFASimulator();
-                if (window.pfaSimulator && typeof window.pfaSimulator._initPromptFactory === 'function') {
-                    window.pfaSimulator._initPromptFactory();
-                }
                 if (window.PFA_BOOT_LOG) {
                     window.PFA_BOOT_LOG.push('[init] PFASimulator instanciado OK (script.js)');
                 }
