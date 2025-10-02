@@ -371,25 +371,25 @@ class PFASimulator {
             if (stageLabel && label) stageLabel.textContent = label;
             if (shell) shell.setAttribute('aria-valuenow', pct);
         };
-        setProgress(8, 'Inicializando canal');
+    setProgress(8, '');
         
         try {
-            // Generar historia con GPT
-            setProgress(22, 'Generando historia');
+            // Generar historia (silencioso para realismo)
+            setProgress(22, '');
             const story = await this.callOpenAI(screenwriterPrompt);
             this.story = story;
-            setProgress(55, 'Historia lista');
+            setProgress(55, '');
             
             // Generar evaluación de triage
-            setProgress(65, 'Derivando a triage');
+            setProgress(65, '');
             const triagePrompt = this.createTriagePrompt(story);
             const triageEvaluation = await this.callOpenAI(triagePrompt);
             this.triageEvaluation = triageEvaluation;
-            setProgress(90, 'Finalizando');
+            setProgress(90, '');
             
             this.hideLoading();
             this.showTriageWindow(triageEvaluation);
-            setTimeout(()=> setProgress(100, 'Caso listo'), 150);
+            setTimeout(()=> setProgress(100, ''), 150);
             
         } catch (error) {
             console.error('Error en la generación:', error);
