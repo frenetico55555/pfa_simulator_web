@@ -327,10 +327,31 @@ class PFASimulator {
         try {
             const t0 = performance.now();
             this.updateLoadingText('Generando historia del caso (1/2)...');
-            const story = await this.callOpenAI(this.createScreenwriterPrompt(config));
+            // Nuevo flujo usando PromptFactory si disponible
+            let story;
+            if (window.promptFactory instanceof window.PromptFactory) {
+                const { system, user } = await window.promptFactory.buildStoryPrompt({
+                    traumaType: config.traumaType,
+                    traumaSetting: config.traumaSetting,
+                    age: config.age,
+                    gender: config.gender,
+                    difficulty: config.difficulty || 50
+                });
+                story = await this.callOpenAI({ system, user });
+            } else {
+                story = await this.callOpenAI(this.createScreenwriterPrompt(config));
+            }
             this.story = story;
             this.updateLoadingText('Generando evaluación de triage (2/2)...');
-            const triageEvaluation = await this.callOpenAI(this.createTriagePrompt(story));
+            let triageEvaluation;
+            if (window.promptFactory instanceof window.PromptFactory) {
+                const { system, user } = await window.promptFactory.buildTriagePrompt({
+                    storySnippet: story.slice(0, 550) // pequeño extracto para triage
+                });
+                triageEvaluation = await this.callOpenAI({ system, user });
+            } else {
+                triageEvaluation = await this.callOpenAI(this.createTriagePrompt(story));
+            }
             this.triageEvaluation = triageEvaluation;
             const total = (performance.now() - t0).toFixed(0);
             this._perfStoryMs = total;
@@ -352,6 +373,20 @@ class PFASimulator {
 
     // Crear prompt de triage
     createTriagePrompt(story) { return this.prompts.triage(story); }
+
+    // Inicialización extendida para PromptFactory
+    _initPromptFactory() {
+        if (window.promptFactoryInitialized) return;
+        if (window.PromptFactory) {
+            window.promptFactory = new window.PromptFactory();
+            window.promptFactory.load().then(()=>{
+                console.log('[PromptFactory] versión', window.promptFactory.version, 'cargada');
+            }).catch(err=>{
+                console.warn('[PromptFactory] Fallback activado', err);
+            });
+            window.promptFactoryInitialized = true;
+        }
+    }
 
     // Llamar a OpenAI
     async callOpenAI(prompt) {
@@ -1226,6 +1261,9 @@ function configureRandomSimulation() {
         try {
             if (!window.pfaSimulator) {
                 window.pfaSimulator = new PFASimulator();
+                if (window.pfaSimulator && typeof window.pfaSimulator._initPromptFactory === 'function') {
+                    window.pfaSimulator._initPromptFactory();
+                }
                 if (window.PFA_BOOT_LOG) {
                     window.PFA_BOOT_LOG.push('[init] PFASimulator instanciado OK (script.js)');
                 }
