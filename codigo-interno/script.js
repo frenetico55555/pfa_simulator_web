@@ -11,7 +11,7 @@ class PFASimulator {
         this.conversationHistory = [];
         this.patientCharacteristics = {};
         this.providerName = '';
-        this.selectedModel = 'gpt-5';
+        this.selectedModel = 'gpt-4o';
         this.pareDetected = null;
         this.story = '';
         this.triageEvaluation = '';
@@ -478,13 +478,24 @@ class PFASimulator {
         }
 
         if (!response.ok) {
+            let errorDetails = '';
+            try {
+                const errorData = await response.json();
+                errorDetails = errorData?.error?.message || JSON.stringify(errorData);
+            } catch (e) {
+                errorDetails = await response.text();
+            }
+            
             if (response.status === 401) {
                 throw new Error('Clave API rechazada (401). Verifica que sea correcta y tenga permisos.');
             }
             if (response.status === 429) {
                 throw new Error('Límite de uso excedido (429). Intenta más tarde.');
             }
-            throw new Error(`Error de API: ${response.status}`);
+            if (response.status === 400) {
+                throw new Error(`Error 400: ${errorDetails}`);
+            }
+            throw new Error(`Error de API ${response.status}: ${errorDetails}`);
         }
 
         const data = await response.json();
