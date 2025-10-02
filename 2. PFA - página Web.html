@@ -6,6 +6,32 @@
     <title>Simulador de Primeros Auxilios Psicológicos</title>
     <link rel="stylesheet" href="codigo-interno/styles.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script>
+        // Detectar modo estudiante y aplicar estilos inmediatamente
+        (function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const mode = urlParams.get('mode');
+            const autostart = urlParams.get('autostart');
+            const random = urlParams.get('random');
+            
+            if (mode === 'student' && autostart === 'true' && random === 'true') {
+                // Agregar CSS para ocultar la ventana de configuración inmediatamente
+                const style = document.createElement('style');
+                style.id = 'student-mode-override';
+                style.textContent = `
+                    #simulationConfigWindow,
+                    .modal#simulationConfigWindow,
+                    .modal.active#simulationConfigWindow {
+                        display: none !important;
+                        visibility: hidden !important;
+                        opacity: 0 !important;
+                    }
+                `;
+                document.head.appendChild(style);
+                console.log('🎓 Modo estudiante detectado - Ventana de configuración oculta');
+            }
+        })();
+    </script>
 </head>
 <body>
     <!-- Banner Legal / Propiedad Intelectual -->

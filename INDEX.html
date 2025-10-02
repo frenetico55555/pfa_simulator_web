@@ -10,6 +10,32 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PFA Simulator - Índice Principal</title>
+    <script>
+        // Detectar modo estudiante y aplicar estilos inmediatamente
+        (function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const mode = urlParams.get('mode');
+            const autostart = urlParams.get('autostart');
+            const random = urlParams.get('random');
+            
+            if (mode === 'student' && autostart === 'true' && random === 'true') {
+                // Agregar CSS para ocultar la ventana de configuración inmediatamente
+                const style = document.createElement('style');
+                style.id = 'student-mode-override';
+                style.textContent = `
+                    #simulationConfigWindow,
+                    .modal#simulationConfigWindow,
+                    .modal.active#simulationConfigWindow {
+                        display: none !important;
+                        visibility: hidden !important;
+                        opacity: 0 !important;
+                    }
+                `;
+                document.head.appendChild(style);
+                console.log('🎓 Modo estudiante detectado - Ventana de configuración oculta');
+            }
+        })();
+    </script>
     <style>
         * { margin:0; padding:0; box-sizing:border-box; }
         body { font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif; background:linear-gradient(135deg,#667eea 0%,#764ba2 100%); min-height:100vh; color:#333; line-height:1.6; }

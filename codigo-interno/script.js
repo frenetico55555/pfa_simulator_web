@@ -1180,6 +1180,18 @@ function configureRandomSimulation() {
     if (isAutostart && isRandom && mode === 'student') {
         console.log('🎯 Configurando simulación aleatoria para alumno...');
         
+        // Agregar CSS para ocultar la ventana de configuración desde el inicio
+        const style = document.createElement('style');
+        style.textContent = `
+            #simulationConfigWindow {
+                display: none !important;
+            }
+            .modal.active#simulationConfigWindow {
+                display: none !important;
+            }
+        `;
+        document.head.appendChild(style);
+        
         // Configurar valores aleatorios en todos los campos
         const randomConfigs = {
             // Selects con opciones aleatorias
@@ -1263,14 +1275,29 @@ function configureRandomSimulation() {
             
             console.log('🎯 Configuración aleatoria completada');
             
-            // Auto-iniciar simulación después de un breve delay
+            // Para modo student con autostart, ir directamente a la simulación
             setTimeout(() => {
-                const startBtn = document.getElementById('startSimulationBtn');
-                if (startBtn && window.pfaSimulator) {
-                    console.log('🚀 Iniciando simulación automáticamente...');
-                    window.pfaSimulator.startSimulation();
+                if (window.pfaSimulator) {
+                    console.log('🚀 Iniciando simulación automáticamente (modo alumno)...');
+                    
+                    // Aplicar configuración directamente sin usar el botón
+                    const config = window.pfaSimulator.getSimulationConfig();
+                    
+                    if (config.providerName) {
+                        window.pfaSimulator.providerName = config.providerName;
+                        window.pfaSimulator.patientCharacteristics = config;
+                        
+                        // Mostrar loading y crear historia directamente
+                        window.pfaSimulator.showLoading('Generando simulación aleatoria...');
+                        
+                        window.pfaSimulator.createTraumaStory().catch(error => {
+                            console.error('Error al crear la historia:', error);
+                            window.pfaSimulator.hideLoading();
+                            alert('Error al generar la simulación. Por favor, intente nuevamente.');
+                        });
+                    }
                 }
-            }, 1500); // 1.5 segundos para que el usuario vea la configuración
+            }, 500); // Reducido a 0.5 segundos para experiencia más fluida
         }
         
         // Ejecutar cuando esté todo listo
