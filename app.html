@@ -11,21 +11,10 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>PFA Simulator - Hub de Desarrollo</title>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="codigo-interno/styles.css">
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-    
-    body {
-      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      min-height: 100vh;
-      color: #1f2937;
-      line-height: 1.6;
-      padding: 20px;
-    }
+    /* Ajustes específicos del hub sobre el design system */
+    body { padding: 20px; }
     
     .container {
       max-width: 1200px;
@@ -68,19 +57,7 @@
       margin-bottom: 40px;
     }
     
-    .profile-card {
-      background: white;
-      border-radius: 16px;
-      padding: 30px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-      border-top: 4px solid;
-    }
-    
-    .profile-card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 20px 40px rgba(0,0,0,0.15);
-    }
+    .profile-card { border-top:4px solid transparent; }
     
     .profile-card.admin {
       border-top-color: #dc2626;
