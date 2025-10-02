@@ -454,14 +454,18 @@ class PFASimulator {
     async createTraumaStoryProgressive() {
         const config = this.patientCharacteristics;
         try {
+            const t0 = performance.now();
             this.updateLoadingText('Generando historia del caso (1/2)...');
             const story = await this.callOpenAI(this.createScreenwriterPrompt(config));
             this.story = story;
             this.updateLoadingText('Generando evaluación de triage (2/2)...');
             const triageEvaluation = await this.callOpenAI(this.createTriagePrompt(story));
             this.triageEvaluation = triageEvaluation;
+            const total = (performance.now() - t0).toFixed(0);
+            this._perfStoryMs = total;
             this.hideLoading();
             this.showTriageWindow(triageEvaluation);
+            console.info('[perf] story+triage ms:', total);
         } catch (error) {
             console.error('Error en la generación:', error);
             this.hideLoading();
@@ -685,10 +689,14 @@ class PFASimulator {
         // Performance: diferir a momento de baja prioridad
         const run = async () => {
             try {
+                const t0 = performance.now();
                 const patientFeedback = await this.generatePatientFeedback();
                 this.updatePatientFeedback(patientFeedback);
                 const technicalFeedback = await this.generateTechnicalFeedback();
                 this.updateTechnicalFeedback(technicalFeedback);
+                const total = (performance.now() - t0).toFixed(0);
+                this._perfFeedbackMs = total;
+                console.info('[perf] feedback total ms:', total);
             } catch (error) {
                 console.error('Error al generar feedback:', error);
             }
@@ -714,8 +722,19 @@ class PFASimulator {
 
     // Actualizar feedback del paciente
     updatePatientFeedback(feedback) {
-        document.getElementById('patientComments').value = feedback;
+        const area = document.getElementById('patientComments');
+        if (area) area.value = feedback;
         this.processPatientRatings(feedback);
+        // Importación diferida para lógica extra opcional
+        if (!this._feedbackModulePromise) {
+            this._feedbackModulePromise = import('./feedback.js').catch(()=>null);
+        }
+        this._feedbackModulePromise.then(mod => {
+            if (mod && mod.postProcessPatient) {
+                const processed = mod.postProcessPatient(feedback);
+                if (area && processed !== feedback) area.value = processed;
+            }
+        });
     }
 
     // Procesar calificaciones del paciente
@@ -765,6 +784,15 @@ class PFASimulator {
     // Actualizar feedback técnico
     updateTechnicalFeedback(feedback) {
         this.populateFeedbackBlocks(feedback);
+        if (!this._feedbackModulePromise) {
+            this._feedbackModulePromise = import('./feedback.js').catch(()=>null);
+        }
+        this._feedbackModulePromise.then(mod => {
+            if (mod && mod.summarizeTechnical) {
+                const summary = mod.summarizeTechnical(feedback);
+                this._technicalSummary = summary; // guardado para debugging / futura UI
+            }
+        });
     }
 
     // Poblar bloques de feedback

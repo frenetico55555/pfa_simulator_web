@@ -4,6 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Simulador de Primeros Auxilios Psicológicos</title>
+        <!-- Critical CSS (subset) para acelerar FCP: layout base, tipografía y modal inicial -->
+        <style>
+            body{margin:0;font-family:var(--font-base,system-ui,-apple-system,Segoe UI,sans-serif);background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);min-height:100vh;color:#1f2937;}
+            .modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.55);backdrop-filter:blur(4px);} 
+            .modal.active{display:flex;} 
+            .modal-content{background:#fff;border-radius:15px;max-width:940px;width:100%;padding:24px;box-shadow:0 20px 40px rgba(0,0,0,.25);}
+            /* Evita FOIT en inputs clave */
+            input,select,button{font-family:inherit;font-size:14px;}
+        </style>
     <link rel="stylesheet" href="codigo-interno/styles.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script>
