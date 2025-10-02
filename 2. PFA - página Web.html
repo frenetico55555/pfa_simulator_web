@@ -82,7 +82,7 @@
     })();
     </script>
     <!-- Ventana de Configuración de Simulación -->
-    <div id="simulationConfigWindow" class="modal active">
+    <div id="simulationConfigWindow" class="modal active" data-modal>
         <div class="modal-content">
             <h2>Configuración de Simulación de PFA</h2>
             <div class="form-group" style="margin-top:8px;">
@@ -730,4 +730,8 @@
                         })();
                         </script>
 </body>
+<script type="module" src="codigo-interno/modalManager.js"></script>
+<script>
+// Ejemplo: botones futuros pueden usar data-modal-open="advancedOptionsDialog" / data-modal-close
+</script>
 </html>
