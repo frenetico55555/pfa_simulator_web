@@ -490,8 +490,20 @@ class PFASimulator {
         this.showLoading('Pensando...');
 
         try {
-            // Generar respuesta del superviviente
-            const survivorPrompt = this.createSurvivorPrompt(message);
+            // Generar respuesta del superviviente (nuevo sistema si disponible)
+            let survivorPrompt;
+            if (window.promptFactory instanceof window.PromptFactory) {
+                survivorPrompt = await window.promptFactory.buildSurvivorPrompt({
+                    config: this.patientCharacteristics,
+                    story: this.story,
+                    triage: this.triageEvaluation,
+                    history: this.conversationHistory,
+                    lastUserMessage: message,
+                    maxHistory: 10
+                });
+            } else {
+                survivorPrompt = this.createSurvivorPrompt(message);
+            }
             const response = await this.callOpenAI(survivorPrompt);
             
             // Agregar respuesta al chat

@@ -66,6 +66,35 @@ class PromptFactory {
       user: this._fill(conf.userTemplate, data)
     };
   }
+
+  async buildSurvivorPrompt({ config, story, triage, history, lastUserMessage, maxHistory = 8 }) {
+    const d = await this.load();
+    const conf = d.chat && d.chat.survivor;
+    if (!conf) throw new Error('Prompts.chat.survivor no disponible');
+    const recent = (history || [])
+      .filter(m => m.role === 'user' || m.role === 'assistant')
+      .slice(-maxHistory)
+      .map(m => `${m.role === 'user' ? 'PROVEEDOR' : 'SOBREVIVIENTE'}: ${m.content}`)
+      .join('\n');
+    const personalityFlat = Object.entries(config.personalityValues || {})
+      .map(([k,v]) => `${k}:${v}%`).join(', ');
+    return {
+      system: conf.system,
+      user: this._fill(conf.userTemplate, {
+        storySnippet: (story||'').slice(0, 600),
+        triageSnippet: (triage||'').slice(0, 400),
+        age: config.age,
+        gender: config.gender,
+        education: config.education,
+        network: config.network,
+        challenges: config.challenges,
+        personalityFlat,
+        historyCount: maxHistory,
+        recentHistory: recent || '—',
+        lastUserMessage: lastUserMessage || ''
+      })
+    };
+  }
 }
 
 window.PromptFactory = PromptFactory;
