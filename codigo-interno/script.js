@@ -609,6 +609,27 @@ class PFASimulator {
         });
     }
 
+    // Mostrar indicador de escritura (tres puntos) durante la generación de la respuesta del paciente
+    showTypingIndicator() {
+        if (this.typingIndicatorEl) return; // Ya existe
+        const chatHistory = document.getElementById('chatHistory');
+        if (!chatHistory) return;
+        const div = document.createElement('div');
+        div.className = 'chat-message assistant typing-indicator';
+        div.innerHTML = '<div class="typing-dots" aria-label="Escribiendo" role="status"><span></span><span></span><span></span></div>';
+        this.typingIndicatorEl = div;
+        chatHistory.appendChild(div);
+        chatHistory.scrollTop = chatHistory.scrollHeight;
+    }
+
+    // Ocultar indicador de escritura
+    hideTypingIndicator() {
+        if (this.typingIndicatorEl) {
+            this.typingIndicatorEl.remove();
+            this.typingIndicatorEl = null;
+        }
+    }
+
     // Verificar criterios PARE
     checkPARECriteria(response) {
         const pareKeywords = [
@@ -946,13 +967,23 @@ class PFASimulator {
 
     // Mostrar indicador de carga
     showLoading(text) {
-        document.getElementById('loadingText').textContent = text;
-        document.getElementById('loadingIndicator').classList.remove('hidden');
+        // Si es el indicador de pensamiento del paciente, usar burbuja de escritura en lugar del overlay global
+        if (text && text.toLowerCase().startsWith('pensando')) {
+            this.showTypingIndicator();
+            return;
+        }
+        const txtEl = document.getElementById('loadingText');
+        if (txtEl) txtEl.textContent = text;
+        const ind = document.getElementById('loadingIndicator');
+        if (ind) ind.classList.remove('hidden');
     }
 
     // Ocultar indicador de carga
     hideLoading() {
-        document.getElementById('loadingIndicator').classList.add('hidden');
+        // Siempre intentar ocultar el indicador de escritura si existe
+        this.hideTypingIndicator && this.hideTypingIndicator();
+        const ind = document.getElementById('loadingIndicator');
+        if (ind) ind.classList.add('hidden');
     }
 
     // Mensaje informativo no intrusivo
