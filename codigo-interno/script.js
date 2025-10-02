@@ -280,8 +280,11 @@ class PFASimulator {
         this.providerName = config.providerName;
         this.patientCharacteristics = config;
         
-    this.closeModal('simulationConfigWindow');
-        this.showLoading('Preparando simulación...');
+	this.closeModal('simulationConfigWindow');
+	    const urlParams = new URLSearchParams(window.location.search);
+	    const immersive = urlParams.get('mode')==='student' && urlParams.get('autostart')==='true';
+	    const loadingMsg = immersive ? 'Esperando que la enfermera de triage le asigne un caso...' : 'Generando simulación (historia y triage)...';
+	    this.showLoading(loadingMsg);
         // Diferir generación para liberar el hilo y permitir pintar UI
         this.scheduleTraumaStoryGeneration();
     }

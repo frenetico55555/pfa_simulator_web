@@ -647,6 +647,18 @@
                             const primarySrc= wantDev ? 'codigo-interno/script.js' : 'codigo-interno/script.min.js';
                             const altSrc    = wantDev ? 'codigo-interno/script.min.js' : 'codigo-interno/script.js';
                             const tried=[]; window.PFA_BOOT_LOG=[];
+                            // Forzar versión no minificada cuando es autostart estudiante (para asegurar funciones nuevas)
+                            const qs = new URLSearchParams(location.search);
+                            const isStudentAuto = qs.get('mode')==='student' && qs.get('autostart')==='true';
+                            if(isStudentAuto && !wantDev){
+                                console.log('%cPFA','background:#0ea5e9;color:#fff;padding:2px 4px;border-radius:3px','[loader_v2] Autostart estudiante detectado -> usando script.js (no min)');
+                                const s=document.createElement('script');
+                                s.src='codigo-interno/script.js';
+                                s.onload=()=>{ console.log('[loader_v2] script.js cargado (autostart estudiante).'); };
+                                s.onerror=()=>{ console.warn('[loader_v2] Falla carga script.js autostart, intentando fallback min.'); inject(primarySrc,'primary-fallback'); };
+                                document.head.appendChild(s);
+                                return; // evitar flujo normal
+                            }
                             function log(msg){
                                 const line= new Date().toISOString()+ ' ['+BOOT_VERSION+'] '+ msg;
                                 window.PFA_BOOT_LOG.push(line);
