@@ -45,6 +45,8 @@ class PFASimulator {
         this.apiKeyInput = null;
         this.apiKeyValid = false;
     this.prompts = new PromptFactory();
+    // Cache ligero de elementos (lazy fill)
+    this._elCache = new Map();
         
         this.initializeEventListeners();
         this.setupSliders();
@@ -399,22 +401,22 @@ class PFASimulator {
     // Obtener configuración de simulación
     getSimulationConfig() {
         return {
-            providerName: document.getElementById('providerName').value.trim(),
-            difficulty: parseInt(document.getElementById('difficultySlider').value),
-            traumaType: document.getElementById('traumaType').value,
-            traumaSetting: document.getElementById('traumaSetting').value,
-            age: document.getElementById('age').value,
-            gender: document.getElementById('gender').value,
-            challenges: document.getElementById('challenges').value,
-            education: document.getElementById('education').value,
-            civilStatus: document.getElementById('civilStatus').value,
-            network: document.getElementById('network').value,
+            providerName: this.q('#providerName')?.value.trim() || '',
+            difficulty: parseInt(this.q('#difficultySlider')?.value || '0'),
+            traumaType: this.q('#traumaType')?.value || '',
+            traumaSetting: this.q('#traumaSetting')?.value || '',
+            age: this.q('#age')?.value || '',
+            gender: this.q('#gender')?.value || '',
+            challenges: this.q('#challenges')?.value || '',
+            education: this.q('#education')?.value || '',
+            civilStatus: this.q('#civilStatus')?.value || '',
+            network: this.q('#network')?.value || '',
             livesWith: this.getCheckedValues('livesWithOptions'),
             hobbies: this.getCheckedValues('hobbiesOptions'),
             personalityValues: this.getPersonalityValues(),
-            medicalConditions: document.getElementById('medicalConditions').value,
-            psychiatricConditions: document.getElementById('psychiatricConditions').value,
-            medications: document.getElementById('medications').value
+            medicalConditions: this.q('#medicalConditions')?.value || '',
+            psychiatricConditions: this.q('#psychiatricConditions')?.value || '',
+            medications: this.q('#medications')?.value || ''
         };
     }
 
@@ -910,13 +912,27 @@ class PFASimulator {
 
     // Mostrar indicador de carga
     showLoading(text) {
-        document.getElementById('loadingText').textContent = text;
-        document.getElementById('loadingIndicator').classList.remove('hidden');
+        const txt = this.q('#loadingText');
+        if (txt) txt.textContent = text;
+        const ind = this.q('#loadingIndicator');
+        if (ind) ind.classList.remove('hidden');
     }
 
     // Ocultar indicador de carga
     hideLoading() {
-        document.getElementById('loadingIndicator').classList.add('hidden');
+        const ind = this.q('#loadingIndicator');
+        if (ind) ind.classList.add('hidden');
+    }
+
+    // Query helper con cache (#id o selector simple)
+    q(selector) {
+        if (selector.startsWith('#')) {
+            if (this._elCache.has(selector)) return this._elCache.get(selector);
+            const el = document.querySelector(selector);
+            if (el) this._elCache.set(selector, el);
+            return el;
+        }
+        return document.querySelector(selector);
     }
 
     // Mensaje informativo no intrusivo
@@ -942,58 +958,22 @@ class PFASimulator {
 
     // Sistema de notificaciones unificado (no bloqueante)
     showToast(message, { type = 'info', duration = 3800 } = {}) {
-        const containerId = 'pfaToastContainer';
-        let container = document.getElementById(containerId);
+        let container = document.getElementById('pfaToastContainer');
         if (!container) {
             container = document.createElement('div');
-            container.id = containerId;
-            container.style.position = 'fixed';
-            container.style.bottom = '12px';
-            container.style.right = '12px';
-            container.style.display = 'flex';
-            container.style.flexDirection = 'column';
-            container.style.gap = '8px';
-            container.style.zIndex = '9999';
+            container.id = 'pfaToastContainer';
             document.body.appendChild(container);
         }
         const toast = document.createElement('div');
+        toast.className = `pfa-toast ${type}`;
         toast.setAttribute('role','status');
-        toast.style.minWidth = '240px';
-        toast.style.maxWidth = '360px';
-        toast.style.padding = '10px 14px';
-        toast.style.borderRadius = '8px';
-        toast.style.fontSize = '14px';
-        toast.style.lineHeight = '1.4';
-        toast.style.fontWeight = '500';
-        toast.style.boxShadow = '0 4px 12px rgba(0,0,0,0.25)';
-        toast.style.display = 'flex';
-        toast.style.alignItems = 'flex-start';
-        toast.style.gap = '8px';
-        toast.style.position = 'relative';
-        const palette = {
-            info: ['#1e3a8a','#eff6ff'],
-            success: ['#065f46','#ecfdf5'],
-            warning: ['#92400e','#fffbeb'],
-            error: ['#7f1d1d','#fef2f2']
-        };
-        const [bg, fg] = palette[type] || palette.info;
-        toast.style.background = bg;
-        toast.style.color = fg;
-        toast.innerHTML = `<span style="flex:1">${message}</span><button aria-label="Cerrar" style="background:transparent;border:none;color:${fg};cursor:pointer;font-weight:bold;">×</button>`;
+        toast.innerHTML = `<span style="flex:1">${message}</span><button aria-label="Cerrar">×</button>`;
         const closeBtn = toast.querySelector('button');
-        closeBtn.addEventListener('click', () => {
-            toast.style.opacity = '0';
-            setTimeout(()=>toast.remove(), 200);
-        });
+        closeBtn.addEventListener('click', () => this._dismissToast(toast));
         container.appendChild(toast);
-        requestAnimationFrame(()=>{ toast.style.opacity = '1'; toast.style.transition = 'opacity .25s'; });
-        if (duration > 0) {
-            setTimeout(() => {
-                toast.style.opacity = '0';
-                setTimeout(()=>toast.remove(), 250);
-            }, duration);
-        }
+        if (duration > 0) setTimeout(() => this._dismissToast(toast), duration);
     }
+    _dismissToast(toast){ if (!toast) return; toast.style.opacity='0'; toast.style.transition='opacity .25s'; setTimeout(()=>toast.remove(), 250); }
 
     // Mostrar recursos
     showResources() {
