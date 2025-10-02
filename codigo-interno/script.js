@@ -46,6 +46,23 @@ class PFASimulator {
         this.apiKeyValid = false;
         this.prompts = new PromptFactory();
         // Cache ligero de elementos (lazy fill)
+        this._elCache = new Map();
+        // Enlazar eventos críticos inmediatamente tras instanciación (botón iniciar y API key)
+        requestAnimationFrame(()=>{
+            const startBtn = document.getElementById('startSimulationBtn');
+            if (startBtn && !startBtn._pfaBound) {
+                startBtn.addEventListener('click', () => this.startSimulation());
+                startBtn._pfaBound = true;
+            }
+            // API key input
+            this.apiKeyInput = document.getElementById('apiKeyInput');
+            if (this.apiKeyInput && !this.apiKeyInput._pfaBound){
+                this.apiKeyInput.addEventListener('input', ()=> this.validateAndMarkAPIKey());
+                this.apiKeyInput._pfaBound = true;
+            }
+            // Auto inicializar persistencia
+            this.initAPIKeyPersistence();
+        });
     }
 
     // Delegación a modalManager (compat)
@@ -898,6 +915,9 @@ class PFASimulator {
         if (ind) {
             ind.classList.add('hidden');
             ind.setAttribute('aria-hidden','true');
+            console.debug('[loading] ocultado overlay');
+        } else {
+            console.warn('[loading] overlay no encontrado al intentar ocultar');
         }
     }
 
@@ -1290,11 +1310,22 @@ function configureRandomSimulation() {
                         
                         // Mostrar loading y crear historia directamente
                         window.pfaSimulator.showLoading('Esperando que la enfermera de triage le asigne un caso...');
+                        console.debug('[autostart] Loading mostrado, generando historia+triage');
                         
                         window.pfaSimulator.createTraumaStory().catch(error => {
                             console.error('Error al crear la historia:', error);
                             window.pfaSimulator.hideLoading();
                             window.pfaSimulator.showToast('Error al generar la simulación. Intente nuevamente.', { type: 'error' });
+                        });
+                    } else {
+                        console.warn('[autostart] providerName vacío - inyectando nombre genérico');
+                        window.pfaSimulator.providerName = 'Proveedor Anónimo';
+                        window.pfaSimulator.patientCharacteristics = { ...config, providerName: 'Proveedor Anónimo' };
+                        window.pfaSimulator.showLoading('Esperando que la enfermera de triage le asigne un caso...');
+                        window.pfaSimulator.createTraumaStory().catch(error => {
+                            console.error('Error al crear la historia (fallback nombre):', error);
+                            window.pfaSimulator.hideLoading();
+                            window.pfaSimulator.showToast('Error al generar la simulación (fallback).', { type: 'error' });
                         });
                     }
                 }
